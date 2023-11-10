@@ -1,6 +1,6 @@
-# 第06章_索引的数据结构
+# ❌第06章_索引的数据结构
 
-## 1. 为什么使用索引
+## ❌1. 为什么使用索引
 
 索引是存储引擎用于快速找到数据记录的一种数据结构，就好比一本教科书的目录部分，通过目录中找到对应文章的页码，便可快速定位到需要的文章。MySQL中也是一样的道理，进行数据查找时，首先查看查询条件是否命中某条索引，符合则`通过索引查找`相关数据，如果不符合则需要`全表扫描`，即需要一条一条地查找记录，直到找到与条件符合的记录。
 
@@ -16,9 +16,9 @@
 
 这就是我们为什么要建索引，目的就是为了 `减少磁盘I/O的次数`，加快查询速率。
 
-## 2. 索引及其优缺点
+## ❌2. 索引及其优缺点
 
-### 2.1 索引概述
+### ❌2.1 索引概述
 
 MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。
 
@@ -26,7 +26,7 @@ MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取�
 
 `索引是在存储引擎中实现的`，因此每种存储引擎的索引不一定完全相同，并且每种存储引擎不一定支持所有索引类型。同时，存储引擎可以定义每个表的 `最大索引数`和 `最大索引长度`。所有存储引擎支持每个表至少16个索引，总索引长度至少为256字节。有些存储引擎支持更多的索引数和更大的索引长度。
 
-### 2.2 优点
+### ❌2.2 优点
 
 （1）类似大学图书馆建书目索引，提高数据检索的效率，降低 **数据库的IO成本** ，这也是创建索引最主 要的原因。 
 
@@ -36,7 +36,7 @@ MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取�
 
 （4）在使用分组和排序子句进行数据查询时，可以显著 **减少查询中分组和排序的时间** ，降低了CPU的消耗。
 
-### 2.3 缺点 
+### ❌2.3 缺点 
 
 增加索引也有许多不利的方面，主要表现在如下几个方面： 
 
@@ -52,9 +52,9 @@ MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取�
 >
 > 索引可以提高查询的速度，但是会影响插入记录的速度。这种情况下，最好的办法是先删除表中的索引，然后插入数据，插入完成后再创建索引。
 
-## 3. InnoDB中索引的推演
+## ❌3. InnoDB中索引的推演
 
-### 3.1 索引之前的查找
+### ❌3.1 索引之前的查找
 
 先来看一个精确匹配的例子：
 
@@ -62,7 +62,7 @@ MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取�
 SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;
 ```
 
-#### 1. 在一个页中的查找
+#### ❌1. 在一个页中的查找
 
 假设目前表中的记录比较少，所有的记录都可以被存放到一个页中，在查找记录的时候可以根据搜索条件的不同分为两种情况：
 
@@ -74,7 +74,7 @@ SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;
 
   因为在数据页中并没有对非主键列简历所谓的页目录，所以我们无法通过二分法快速定位相应的槽。这种情况下只能从 `最小记录` 开始 `依次遍历单链表中的每条记录`， 然后对比每条记录是不是符合搜索条件。很显然，这种查找的效率是非常低的。
 
-#### 2. 在很多页中查找
+#### ❌2. 在很多页中查找
 
 在很多页中查找记录的活动可以分为两个步骤：
 
@@ -83,7 +83,7 @@ SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;
 
 在没有索引的情况下，不论是根据主键列或者其他列的值进行查找，由于我们并不能快速的定位到记录所在的页，所以只能 从第一个页沿着双向链表 一直往下找，在每一个页中根据我们上面的查找方式去查 找指定的记录。因为要遍历所有的数据页，所以这种方式显然是 超级耗时 的。如果一个表有一亿条记录呢？此时 索引 应运而生。
 
-### 3.2 设计索引
+### ❌3.2 设计索引
 
 建一个表：
 
@@ -115,7 +115,7 @@ mysql> CREATE TABLE index_demo(
 
 ![image-20220616152651878](MySQL索引及调优篇.assets/image-20220616152651878.png)
 
-#### 1. 一个简单的索引设计方案
+#### ❌1. 一个简单的索引设计方案
 
 我们在根据某个搜索条件查找一些记录时为什么要遍历所有的数据页呢？因为各个页中的记录并没有规律，我们并不知道我们的搜索条件匹配哪些页中的记录，所以不得不依次遍历所有的数据页。所以如果我们 **想快速的定位到需要查找的记录在哪些数据页** 中该咋办？我们可以为快速定位记录所在的数据页而建立一个目录 ，建这个目录必须完成下边这些事：
 
@@ -168,9 +168,9 @@ INSERT INTO index_demo VALUES(4, 4, 'a');
 
 至此，针对数据页做的简易目录就搞定了。这个目录有一个别名，称为 **索引** 。
 
-#### 2. InnoDB中的索引方案
+#### ❌2. InnoDB中的索引方案
 
-##### ① 迭代1次：目录项纪录的页
+##### ❌① 迭代1次：目录项纪录的页
 
 InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项记录** 呢？使用记录头信息里的 **record_type** 属性，它的各自取值代表的意思如下：
 
@@ -196,7 +196,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 1. 先到存储 目录项记录 的页，也就是页30中通过 二分法 快速定位到对应目录项，因为 12 < 20 < 209 ，所以定位到对应的记录所在的页就是页9。 
 2. 再到存储用户记录的页9中根据 二分法 快速定位到主键值为 20 的用户记录。
 
-##### ② 迭代2次：多个目录项纪录的页
+##### ❌② 迭代2次：多个目录项纪录的页
 
 ![image-20220616171135082](MySQL索引及调优篇.assets/image-20220616171135082.png)
 
@@ -211,7 +211,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 2. 通过目录项记录页 确定用户记录真实所在的页 。 在一个存储 目录项记录 的页中通过主键值定位一条目录项记录的方式说过了。 
 3. 在真实存储用户记录的页中定位到具体的记录。
 
-##### ③ 迭代3次：目录项记录页的目录页
+##### ❌③ 迭代3次：目录项记录页的目录页
 
 如果我们表中的数据非常多则会`产生很多存储目录项记录的页`，那我们怎么根据主键值快速定位一个存储目录项记录的页呢？那就为这些存储目录项记录的页再生成一个`更高级的目录`，就像是一个多级目录一样，`大目录里嵌套小目录`，小目录里才是实际的数据，所以现在各个页的示意图就是这样子：
 
@@ -225,7 +225,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 
 这个数据结构，它的名称是 B+树 。
 
-##### ④ B+Tree
+##### ❌④ B+Tree
 
 一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放我们用户记录的那层为第 0 层， 之后依次往上加。之前我们做了一个非常极端的假设：存放用户记录的页 最多存放3条记录 ，存放目录项 记录的页 最多存放4条记录 。其实真实环境中一个页存放的记录数量是非常大的，假设所有存放用户记录 的叶子节点代表的数据页可以存放 100条用户记录 ，所有存放目录项记录的内节点代表的数据页可以存 放 1000条目录项记录 ，那么：
 
@@ -236,11 +236,11 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 
 你的表里能存放 **100000000000** 条记录吗？所以一般情况下，我们用到的 **B+树都不会超过4层** ，那我们通过主键值去查找某条记录最多只需要做4个页面内的查找（查找3个目录项页和一个用户记录页），又因为在每个页面内有所谓的 **Page Directory** （页目录），所以在页面内也可以通过 **二分法** 实现快速 定位记录。
 
-### 3.3 常见索引概念
+### ❌3.3 常见索引概念
 
 索引按照物理实现方式，索引可以分为 2 种：聚簇（聚集）和非聚簇（非聚集）索引。我们也把非聚集 索引称为二级索引或者辅助索引。
 
-#### 1. 聚簇索引
+#### ❌1. 聚簇索引
 
 聚簇索引并不是一种单独的索引类型，而是**一种数据存储方式**（所有的用户记录都存储在了叶子结点），也就是所谓的 `索引即数据，数据即索引`。
 
@@ -272,7 +272,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 * `更新主键的代价很高` ，因为将会导致被更新的行移动。因此，对于InnoDB表，我们一般定义**主键为不可更新**
 * `二级索引访问需要两次索引查找` ，第一次找到主键值，第二次根据主键值找到行数据
 
-#### 2. 二级索引（辅助索引、非聚簇索引）
+#### ❌2. 二级索引（辅助索引、非聚簇索引）
 
 如果我们想以别的列作为搜索条件该怎么办？肯定不能是从头到尾沿着链表依次遍历记录一遍。
 
@@ -306,7 +306,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 2. 一个表`只能有一个聚簇索引`，因为只能有一种排序存储的方式，但可以有`多个非聚簇索引`，也就是多个索引目录提供数据检索。
 3. 使用聚簇索引的时候，数据的`查询效率高`，但如果对数据进行插入，删除，更新等操作，效率会比非聚簇索引低。
 
-#### 3.联合索引
+#### ❌3.联合索引
 
 我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引，比方说我们想让B+树按 照 c2和c3列 的大小进行排序，这个包含两层含义： 
 
@@ -327,9 +327,9 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 * 建立 联合索引 只会建立如上图一样的1棵B+树。 
 * 为c2和c3列分别建立索引会分别以c2和c3列的大小为排序规则建立2棵B+树。
 
-### 3.4 InnoDB的B+树索引的注意事项
+### ❌3.4 InnoDB的B+树索引的注意事项
 
-#### 1. 根页面位置万年不动
+#### ❌1. 根页面位置万年不动
 
 实际上B+树的形成过程是这样的：
 
@@ -339,7 +339,7 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 
 这个过程特别注意的是：一个B+树索引的根节点自诞生之日起，便不会再移动。这样只要我们对某个表建议一个索引，那么它的根节点的页号便会被记录到某个地方。然后凡是 `InnoDB` 存储引擎需要用到这个索引的时候，都会从哪个固定的地方取出根节点的页号，从而来访问这个索引。
 
-#### 2. 内节点中目录项记录的唯一性
+#### ❌2. 内节点中目录项记录的唯一性
 
 我们知道B+树索引的内节点中目录项记录的内容是 `索引列 + 页号` 的搭配，但是这个搭配对于二级索引来说有点不严谨。还拿 index_demo 表为例，假设这个表中的数据是这样的：
 
@@ -363,11 +363,11 @@ InnoDB怎么区分一条记录是普通的 **用户记录** 还是 **目录项�
 
 这样我们再插入记录`(9, 1, 'c')` 时，由于 `页3` 中存储的目录项记录是由 `c2列 + 主键 + 页号` 的值构成的，可以先把新纪录的 `c2` 列的值和 `页3` 中各目录项记录的 `c2` 列的值作比较，如果 `c2` 列的值相同的话，可以接着比较主键值，因为B+树同一层中不同目录项记录的 `c2列 + 主键`的值肯定是不一样的，所以最后肯定能定位唯一的一条目录项记录，在本例中最后确定新纪录应该被插入到 `页5` 中。
 
-#### 3. 一个页面最少存储 2 条记录
+#### ❌3. 一个页面最少存储 2 条记录
 
 一个B+树只需要很少的层级就可以轻松存储数亿条记录，查询速度相当不错！这是因为B+树本质上就是一个大的多层级目录，每经过一个目录时都会过滤掉许多无效的子目录，直到最后访问到存储真实数据的目录。那如果一个大的目录中只存放一个子目录是个啥效果呢？那就是目录层级非常非常多，而且最后的那个存放真实数据的目录中只存放一条数据。所以 **InnoDB 的一个数据页至少可以存放两条记录**。
 
-## 4. MyISAM中的索引方案
+## ❌4. MyISAM中的索引方案
 
 B树索引使用存储引擎如表所示：
 
@@ -379,7 +379,7 @@ B树索引使用存储引擎如表所示：
 
 MyISAM引擎使用 B+Tree 作为索引结构，叶子节点的data域存放的是 数据记录的地址 。
 
-### 4.1 MyISAM索引的原理
+### ❌4.1 MyISAM索引的原理
 
 <img src="MySQL索引及调优篇.assets/image-20220617160325201.png" alt="image-20220617160325201" style="float:left;" />
 
@@ -391,7 +391,7 @@ MyISAM引擎使用 B+Tree 作为索引结构，叶子节点的data域存放的�
 
 <img src="MySQL索引及调优篇.assets/image-20220617160813548.png" alt="image-20220617160813548" style="float:left;" />
 
-### 4.2 MyISAM 与 InnoDB对比
+### ❌4.2 MyISAM 与 InnoDB对比
 
 **MyISAM的索引方式都是“非聚簇”的，与InnoDB包含1个聚簇索引是不同的。小结两种引擎中索引的区别：**
 
@@ -411,7 +411,7 @@ MyISAM引擎使用 B+Tree 作为索引结构，叶子节点的data域存放的�
 
 ![image-20220617161151125](MySQL索引及调优篇.assets/image-20220617161151125.png)
 
-## 5. 索引的代价
+## ❌5. 索引的代价
 
 索引是个好东西，可不能乱建，它在空间和时间上都会有消耗：
 
@@ -425,15 +425,15 @@ MyISAM引擎使用 B+Tree 作为索引结构，叶子节点的data域存放的�
 
 > 一个表上索引建的越多，就会占用越多的存储空间，在增删改记录的时候性能就越差。为了能建立又好又少的索引，我们得学学这些索引在哪些条件下起作用的。
 
-## 6. MySQL数据结构选择的合理性
+## ❌6. MySQL数据结构选择的合理性
 
 <img src="MySQL索引及调优篇.assets/image-20220617161635521.png" alt="image-20220617161635521" style="float:left;" />
 
-### 6.1 全表查询
+### ❌6.1 全表查询
 
 这里都懒得说了。
 
-### 6.2 Hash查询
+### ❌6.2 Hash查询
 
 <img src="MySQL索引及调优篇.assets/image-20220617161946230.png" alt="image-20220617161946230" style="float:left;" />
 
@@ -519,7 +519,7 @@ public void test2(){
 mysql> show variables like '%adaptive_hash_index';
 ```
 
-### 6.3 二叉搜索树
+### ❌6.3 二叉搜索树
 
 如果我们利用二叉树作为索引结构，那么磁盘的IO次数和索引树的高度是相关的。
 
@@ -540,7 +540,7 @@ mysql> show variables like '%adaptive_hash_index';
 
 为了提高查询效率，就需要 减少磁盘IO数 。为了减少磁盘IO的次数，就需要尽量 降低树的高度 ，需要把 原来“瘦高”的树结构变的“矮胖”，树的每层的分叉越多越好。
 
-### 6.4 AVL树
+### ❌6.4 AVL树
 
 <img src="MySQL索引及调优篇.assets/image-20220617165045803.png" alt="image-20220617165045803" style="float:left;" />
 
@@ -554,7 +554,7 @@ mysql> show variables like '%adaptive_hash_index';
 
 你能看到此时树的高度降低了，当数据量 N 大的时候，以及树的分叉树 M 大的时候，M叉树的高度会远小于二叉树的高度 (M > 2)。所以，我们需要把 `树从“瘦高” 变 “矮胖”。
 
-### 6.5 B-Tree
+### ❌6.5 B-Tree
 
 B 树的英文是 Balance Tree，也就是 `多路平衡查找树`。简写为 B-Tree。它的高度远小于平衡二叉树的高度。
 
@@ -588,7 +588,7 @@ B 树的结构如下图所示：
 
 ![image-20220617170526488](MySQL索引及调优篇.assets/image-20220617170526488.png)
 
-### 6.6 B+Tree
+### ❌6.6 B+Tree
 
 <img src="MySQL索引及调优篇.assets/image-20220617170628394.png" alt="image-20220617170628394" style="float:left;" />
 
@@ -635,7 +635,7 @@ B 树的结构如下图所示：
 
 <img src="MySQL索引及调优篇.assets/image-20220617175309115.png" alt="image-20220617175309115" style="float:left;" />
 
-### 6.7 R树
+### ❌6.7 R树
 
 R-Tree在MySQL很少使用，仅支持 geometry数据类型 ，支持该类型的存储引擎只有myisam、bdb、 innodb、ndb、archive几种。举个R树在现实领域中能够解决的例子：查找20英里以内所有的餐厅。如果 没有R树你会怎么解决？一般情况下我们会把餐厅的坐标(x,y)分为两个字段存放在数据库中，一个字段记 录经度，另一个字段记录纬度。这样的话我们就需要遍历所有的餐厅获取其位置信息，然后计算是否满 足要求。如果一个地区有100家餐厅的话，我们就要进行100次位置计算操作了，如果应用到谷歌、百度 地图这种超大数据库中，这种方法便必定不可行了。R树就很好的 解决了这种高维空间搜索问题 。它把B 树的思想很好的扩展到了多维空间，采用了B树分割空间的思想，并在添加、删除操作时采用合并、分解 结点的方法，保证树的平衡性。因此，R树就是一棵用来 存储高维数据的平衡树 。相对于B-Tree，R-Tree 的优势在于范围查找。
 
@@ -643,33 +643,33 @@ R-Tree在MySQL很少使用，仅支持 geometry数据类型 ，支持该类型�
 | --------------- | ------ | ------ | ------ |
 | R-Tree索引      | 支持   | 支持   | 不支持 |
 
-### 6.8 小结
+### ❌6.8 小结
 
 <img src="MySQL索引及调优篇.assets/image-20220617175440527.png" alt="image-20220617175440527" style="float:left;" />
 
-### 附录：算法的时间复杂度
+### ❌附录：算法的时间复杂度
 
 同一问题可用不同算法解决，而一个算法的质量优劣将影响到算法乃至程序的效率。算法分析的目的在 于选择合适算法和改进算法。
 
 ![image-20220617175516191](MySQL索引及调优篇.assets/image-20220617175516191.png)
 
-# 第7章_InnoDB数据存储结构
+# ❌第7章_InnoDB数据存储结构
 
-## 1. 数据库的存储结构：页
+## ❌1. 数据库的存储结构：页
 
 <img src="MySQL索引及调优篇.assets/image-20220617175755324.png" alt="image-20220617175755324" style="float:left;" />
 
-### 1.1 磁盘与内存交互基本单位：页
+### ❌1.1 磁盘与内存交互基本单位：页
 
 <img src="MySQL索引及调优篇.assets/image-20220617193033971.png" alt="image-20220617193033971" style="float:left;" />
 
 ![image-20220617193939742](MySQL索引及调优篇.assets/image-20220617193939742.png)
 
-### 1.2 页结构概述
+### ❌1.2 页结构概述
 
 <img src="MySQL索引及调优篇.assets/image-20220617193218557.png" alt="image-20220617193218557" style="float:left;" />
 
-### 1.3 页的大小
+### ❌1.3 页的大小
 
 不同的数据库管理系统（简称DBMS）的页大小不同。比如在 MySQL 的 InnoDB 存储引擎中，默认页的大小是 `16KB`，我们可以通过下面的命令来进行查看：
 
@@ -679,7 +679,7 @@ show variables like '%innodb_page_size%'
 
 SQL Server 中页的大小为 `8KB`，而在 Oracle 中我们用术语 "`块`" （Block）来表示 "页"，Oracle 支持的快大小为2KB, 4KB, 8KB, 16KB, 32KB 和 64KB。
 
-### 1.4 页的上层结构
+### ❌1.4 页的上层结构
 
 另外在数据库中，还存在着区（Extent）、段（Segment）和表空间（Tablespace）的概念。行、页、区、段、表空间的关系如下图所示：
 
@@ -687,7 +687,7 @@ SQL Server 中页的大小为 `8KB`，而在 Oracle 中我们用术语 "`块`" �
 
 <img src="MySQL索引及调优篇.assets/image-20220617194529699.png" alt="image-20220617194529699" style="float:left;" />
 
-## 2. 页的内部结构
+## ❌2. 页的内部结构
 
 页如果按类型划分的话，常见的有 `数据页（保存B+树节点）、系统表、Undo 页 和 事务数据页` 等。数据页是我们最常使用的页。
 
@@ -703,19 +703,19 @@ SQL Server 中页的大小为 `8KB`，而在 Oracle 中我们用术语 "`块`" �
 
 我们可以把这7个结构分为3个部分。
 
-### 第一部分：File Header (文件头部) 和 File Trailer (文件尾部)
+### ❌第一部分：File Header (文件头部) 和 File Trailer (文件尾部)
 
 见文件InnoDB数据库存储结构.mmap
 
-### 第二部分：User Records (用户记录)、最大最小记录、Free Space (空闲空间)
+### ❌第二部分：User Records (用户记录)、最大最小记录、Free Space (空闲空间)
 
 见文件InnoDB数据库存储结构.mmap
 
-### 第三部分：Page Directory (页目录) 和 Page Header (页面头部)
+### ❌第三部分：Page Directory (页目录) 和 Page Header (页面头部)
 
 见文件InnoDB数据库存储结构.mmap
 
-### 2.3 从数据库页的角度看B+树如何查询
+### ❌2.3 从数据库页的角度看B+树如何查询
 
 一颗B+树按照字节类型可以分为两部分：
 
@@ -730,25 +730,25 @@ SQL Server 中页的大小为 `8KB`，而在 Oracle 中我们用术语 "`块`" �
 
 <img src="MySQL索引及调优篇.assets/image-20220620221442954.png" alt="image-20220620221442954" style="float:left;" />
 
-## 3. InnoDB行格式 (或记录格式)
+## ❌3. InnoDB行格式 (或记录格式)
 
 见文件InnoDB数据库存储结构.mmap
 
-## 4. 区、段与碎片区
+## ❌4. 区、段与碎片区
 
-### 4.1 为什么要有区？
+### ❌4.1 为什么要有区？
 
 <img src="MySQL索引及调优篇.assets/image-20220621134226624.png" alt="image-20220621134226624" style="float:left;" />
 
-### 4.2 为什么要有段？
+### ❌4.2 为什么要有段？
 
 <img src="MySQL索引及调优篇.assets/image-20220621140802887.png" alt="image-20220621140802887" style="float:left;" />
 
-### 4.3 为什么要有碎片区？
+### ❌4.3 为什么要有碎片区？
 
 <img src="MySQL索引及调优篇.assets/image-20220621141225223.png" alt="image-20220621141225223" style="float:left;" />
 
-### 4.4 区的分类
+### ❌4.4 区的分类
 
 区大体上可以分为4种类型：
 
@@ -761,11 +761,11 @@ SQL Server 中页的大小为 `8KB`，而在 Oracle 中我们用术语 "`块`" �
 
 > 如果把表空间比作是一个集团军，段就相当于师，区就相当于团。一般的团都是隶属于某个师的，就像是处于 FSEG 的区全部隶属于某个段，而处于 FREE、FREE_FRAG 以及 FULL_FRAG 这三种状态的区却直接隶属于表空间，就像独立团直接听命于军部一样。
 
-## 5. 表空间
+## ❌5. 表空间
 
 <img src="MySQL索引及调优篇.assets/image-20220621142910222.png" alt="image-20220621142910222" style="float:left;" />
 
-### 5.1 独立表空间
+### ❌5.1 独立表空间
 
 独立表空间，即每张表有一个独立的表空间，也就是数据和索引信息都会保存在自己的表空间中。独立的表空间 (即：单表) 可以在不同的数据库之间进行 `迁移`。
 
@@ -787,7 +787,7 @@ show variables like 'innodb_file_per_table'
 
 你能看到 innodb_file_per_table=ON, 这就意味着每张表都会单词保存一个 .ibd 文件。
 
-### 5.2 系统表空间
+### ❌5.2 系统表空间
 
 系统表空间的结构和独立表空间基本类似，只不过由于整个MySQL进程只有一个系统表空间，在系统表空间中会额外记录一些有关整个系统信息的页面，这部分是独立表空间中没有的。
 
@@ -821,7 +821,7 @@ SHOW TABLES LIKE 'innodb_sys%';
 
 在 `information_scheme` 数据库中的这些以 `INNODB_SYS` 开头的表并不是真正的内部系统表 (内部系统表就是我们上边以 `SYS` 开头的那些表)，而是在存储引擎启动时读取这些以 `SYS` 开头的系统表，然后填充到这些以 `INNODB_SYS` 开头的表中。以 `INNODB_SYS` 开头的表和以 `SYS` 开头的表中的字段并不完全一样，但仅供大家参考已经足矣。
 
-## 附录：数据页加载的三种方式
+## ❌附录：数据页加载的三种方式
 
 InnoDB从磁盘中读取数据 `最小单位` 是数据页。而你想得到的 id = xxx 的数据，就是这个数据页众多行中的一行。
 
@@ -845,11 +845,11 @@ InnoDB从磁盘中读取数据 `最小单位` 是数据页。而你想得到的 
 
 <img src="MySQL索引及调优篇.assets/image-20220621135909197.png" alt="image-20220621135909197" style="float:left;" />
 
-# 第8章_索引的创建与设计原则
+# ❌第8章_索引的创建与设计原则
 
-## 1. 索引的声明与使用
+## ❌1. 索引的声明与使用
 
-### 1.1 索引的分类
+### ❌1.1 索引的分类
 
 MySQL的索引包括普通索引、唯一性索引、全文索引、单列索引、多列索引和空间索引等。
 
@@ -899,11 +899,11 @@ NDB ：支持 Hash 索引，不支持 B-tree、Full-text 等索引；
 
 Archive ：不支 持 B-tree、Hash、Full-text 等索引；
 
-### 1.2 创建索引
+### ❌1.2 创建索引
 
 MySQL支持多种方法在单个或多个列上创建索引：在创建表的定义语句 CREATE TABLE 中指定索引列，使用 ALTER TABLE 语句在存在的表上创建索引，或者使用 CREATE INDEX 语句在已存在的表上添加索引。
 
-#### 1. 创建表的时候创建索引
+#### ❌1. 创建表的时候创建索引
 
 使用CREATE TABLE创建表时，除了可以定义列的数据类型外，还可以定义主键约束、外键约束或者唯一性约束，而不论创建哪种约束，在定义约束的同时相当于在指定列上创建了一个索引。
 
@@ -1132,7 +1132,7 @@ SHOW INDEX FROM test5 \G
 
 可以看到，test5表的geo字段上创建了名称为spa_idx_geo的空间索引。注意创建时指定空间类型字段值的非空约束，并且表的存储引擎为MyISAM。
 
-#### 2. 在已经存在的表上创建索引
+#### ❌2. 在已经存在的表上创建索引
 
 在已经存在的表中创建索引可以使用ALTER TABLE语句或者CREATE INDEX语句。
 
@@ -1150,7 +1150,7 @@ CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name
 ON table_name (col_name[length],...) [ASC | DESC]
 ```
 
-### 1.3 删除索引
+### ❌1.3 删除索引
 
 **1. 使用ALTER TABLE删除索引**  ALTER TABLE删除索引的基本语法格式如下：
 
@@ -1166,9 +1166,9 @@ DROP INDEX index_name ON table_name;
 
 > 提示: 删除表中的列时，如果要删除的列为索引的组成部分，则该列也会从索引中删除。如果组成索引的所有列都被删除，则整个索引将被删除。
 
-## 2. MySQL8.0索引新特性
+## ❌2. MySQL8.0索引新特性
 
-### 2.1 支持降序索引
+### ❌2.1 支持降序索引
 
 降序索引以降序存储键值。虽然在语法上，从MySQL 4版本开始就已经支持降序索引的语法了，但实际上DESC定义是被忽略的，直到MySQL 8.x版本才开始真正支持降序索引 (仅限于InnoDBc存储引擎)。
 
@@ -1208,7 +1208,7 @@ BEGIN
 END //
 DELIMITER;
 
-# 调用
+# ❌调用
 CALL ts_insert();
 ```
 
@@ -1222,7 +1222,7 @@ EXPLAIN SELECT * FROM ts1 ORDER BY a, b DESC LIMIT 5;
 
 从结果可以看出，修改后MySQL 5.7 的执行计划要明显好于MySQL 8.0。
 
-### 2.2 隐藏索引
+### ❌2.2 隐藏索引
 
 在MySQL 5.7版本及之前，只能通过显式的方式删除索引。此时，如果发展删除索引后出现错误，又只能通过显式创建索引的方式将删除的索引创建回来。如果数据表中的数据量非常大，或者数据表本身比较 大，这种操作就会消耗系统过多的资源，操作成本非常高。
 
@@ -1356,11 +1356,11 @@ mysql> select @@optimizer_switch \G
 
 此时，use_invisible_indexes属性的值已经被设置为“off”。
 
-## 3. 索引的设计原则
+## ❌3. 索引的设计原则
 
 为了使索引的使用效率更高，在创建索引时，必须考虑在哪些字段上创建索引和创建什么类型的索引。**索引设计不合理或者缺少索引都会对数据库和应用程序的性能造成障碍。**高效的索引对于获得良好的性能非常重要。设计索引时，应该考虑相应准则。
 
-### 3.1 数据准备
+### ❌3.1 数据准备
 
 **第1步：创建数据库、创建表**
 
@@ -1438,7 +1438,7 @@ show variables like 'log_bin_trust_function_creators';
 * 命令开启：允许创建函数设置：
 
 ```mysql
-set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+set global log_bin_trust_function_creators=1; # ❌不加global只是当前窗口有效。
 ```
 
 * mysqld重启，上述参数又会消失。永久方法：
@@ -1458,7 +1458,7 @@ set global log_bin_trust_function_creators=1; # 不加global只是当前窗口�
 **第3步：创建插入模拟数据的存储过程**
 
 ```mysql
-# 存储过程1：创建插入课程表存储过程
+# ❌存储过程1：创建插入课程表存储过程
 DELIMITER //
 CREATE PROCEDURE insert_course( max_num INT )
 BEGIN
@@ -1476,7 +1476,7 @@ DELIMITER ;
 ```
 
 ```mysql
-# 存储过程2：创建插入学生信息表存储过程
+# ❌存储过程2：创建插入学生信息表存储过程
 DELIMITER //
 CREATE PROCEDURE insert_stu( max_num INT )
 BEGIN
@@ -1503,29 +1503,29 @@ CALL insert_course(100);
 CALL insert_stu(1000000);
 ```
 
-### 3.2 哪些情况适合创建索引
+### ❌3.2 哪些情况适合创建索引
 
-#### 1. 字段的数值有唯一性的限制
+#### ❌1. 字段的数值有唯一性的限制
 
 <img src="MySQL索引及调优篇.assets/image-20220623154615702.png" alt="image-20220623154615702" style="float:left;" />
 
 > 业务上具有唯一特性的字段，即使是组合字段，也必须建成唯一索引。（来源：Alibaba） 说明：不要以为唯一索引影响了 insert 速度，这个速度损耗可以忽略，但提高查找速度是明显的。
 
-#### 2. 频繁作为 WHERE 查询条件的字段
+#### ❌2. 频繁作为 WHERE 查询条件的字段
 
 某个字段在SELECT语句的 WHERE 条件中经常被使用到，那么就需要给这个字段创建索引了。尤其是在 数据量大的情况下，创建普通索引就可以大幅提升数据查询的效率。 
 
 比如student_info数据表（含100万条数据），假设我们想要查询 student_id=123110 的用户信息。
 
-#### 3. 经常 GROUP BY 和 ORDER BY 的列
+#### ❌3. 经常 GROUP BY 和 ORDER BY 的列
 
 索引就是让数据按照某种顺序进行存储或检索，因此当我们使用 GROUP BY 对数据进行分组查询，或者使用 ORDER BY 对数据进行排序的时候，就需要对分组或者排序的字段进行索引 。如果待排序的列有多个，那么可以在这些列上建立组合索引 。
 
-#### 4. UPDATE、DELETE 的 WHERE 条件列
+#### ❌4. UPDATE、DELETE 的 WHERE 条件列
 
 对数据按照某个条件进行查询后再进行 UPDATE 或 DELETE 的操作，如果对 WHERE 字段创建了索引，就能大幅提升效率。原理是因为我们需要先根据 WHERE 条件列检索出来这条记录，然后再对它进行更新或删除。**如果进行更新的时候，更新的字段是非索引字段，提升的效率会更明显，这是因为非索引字段更新不需要对索引进行维护。**
 
-#### 5.DISTINCT 字段需要创建索引
+#### ❌5.DISTINCT 字段需要创建索引
 
 有时候我们需要对某个字段进行去重，使用 DISTINCT，那么对这个字段创建索引，也会提升查询效率。 
 
@@ -1547,7 +1547,7 @@ SELECT DISTINCT(student_id) FROM `student_info`;
 
 你能看到 SQL 查询效率有了提升，同时显示出来的 student_id 还是按照递增的顺序 进行展示的。这是因为索引会对数据按照某种顺序进行排序，所以在去重的时候也会快很多。
 
-#### 6. 多表 JOIN 连接操作时，创建索引注意事项
+#### ❌6. 多表 JOIN 连接操作时，创建索引注意事项
 
 首先， `连接表的数量尽量不要超过 3 张` ，因为每增加一张表就相当于增加了一次嵌套的循环，数量级增 长会非常快，严重影响查询的效率。 
 
@@ -1568,11 +1568,11 @@ WHERE name = '462eed7ac6e791292a79';
 
 这里我们对 name 创建索引，再执行上面的 SQL 语句，运行时间为 0.002s 。
 
-#### 7. 使用列的类型小的创建索引
+#### ❌7. 使用列的类型小的创建索引
 
 <img src="MySQL索引及调优篇.assets/image-20220623175306282.png" alt="image-20220623175306282" style="float:left;" />
 
-#### 8. 使用字符串前缀创建索引
+#### ❌8. 使用字符串前缀创建索引
 
 <img src="MySQL索引及调优篇.assets/image-20220623175513439.png" alt="image-20220623175513439" style="float:left;" />
 
@@ -1629,7 +1629,7 @@ LIMIT 12;
 
 说明：索引的长度与区分度是一对矛盾体，一般对字符串类型数据，长度为 20 的索引，区分度会高达 90% 以上 ，可以使用 count(distinct left(列名, 索引长度))/count(*)的区分度来确定。
 
-#### 9. 区分度高(散列性高)的列适合作为索引
+#### ❌9. 区分度高(散列性高)的列适合作为索引
 
 `列的基数` 指的是某一列中不重复数据的个数，比方说某个列包含值 `2, 5, 8, 2, 5, 8, 2, 5, 8`，虽然有`9`条记录，但该列的基数却是3。也就是说**在记录行数一定的情况下，列的基数越大，该列中的值越分散；列的基数越小，该列中的值越集中。**这个列的基数指标非常重要，直接影响我们是否能有效的利用索引。最好为列的基数大的列简历索引，为基数太小的列的简历索引效果可能不好。
 
@@ -1637,19 +1637,19 @@ LIMIT 12;
 
 扩展：联合索引把区分度搞(散列性高)的列放在前面。
 
-#### 10. 使用最频繁的列放到联合索引的左侧
+#### ❌10. 使用最频繁的列放到联合索引的左侧
 
 这样也可以较少的建立一些索引。同时，由于"最左前缀原则"，可以增加联合索引的使用率。
 
-#### 11. 在多个字段都要创建索引的情况下，联合索引优于单值索引
+#### ❌11. 在多个字段都要创建索引的情况下，联合索引优于单值索引
 
-### 3.3 限制索引的数目
+### ❌3.3 限制索引的数目
 
 <img src="MySQL索引及调优篇.assets/image-20220627151947786.png" alt="image-20220627151947786" style="float:left;" />
 
-### 3.4 哪些情况不适合创建索引
+### ❌3.4 哪些情况不适合创建索引
 
-#### 1. 在where中使用不到的字段，不要设置索引
+#### ❌1. 在where中使用不到的字段，不要设置索引
 
 WHERE条件 (包括 GROUP BY、ORDER BY) 里用不到的字段不需要创建索引，索引的价值是快速定位，如果起不到定位的字段通常是不需要创建索引的。举个例子：
 
@@ -1661,7 +1661,7 @@ WHERE student_id = 41251;
 
 因为我们是按照 student_id 来进行检索的，所以不需要对其他字段创建索引，即使这些字段出现在SELECT字段中。
 
-#### 2. 数据量小的表最好不要使用索引
+#### ❌2. 数据量小的表最好不要使用索引
 
 如果表记录太少，比如少于1000个，那么是不需要创建索引的。表记录太少，是否创建索引 `对查询效率的影响并不大`。甚至说，查询花费的时间可能比遍历索引的时间还要短，索引可能不会产生优化效果。
 
@@ -1750,7 +1750,7 @@ mysql> select * from t_with_index where b = 9879;
 
 > 结论：在数据表中的数据行数比较少的情况下，比如不到 1000 行，是不需要创建索引的。
 
-#### 3. 有大量重复数据的列上不要建立索引
+#### ❌3. 有大量重复数据的列上不要建立索引
 
 在条件表达式中经常用到的不同值较多的列上建立索引，但字段中如果有大量重复数据，也不用创建索引。比如在学生表的"性别"字段上只有“男”与“女”两个不同值，因此无须建立索引。如果建立索引，不但不会提高查询效率，反而会`严重降低数据更新速度`。
 
@@ -1777,21 +1777,21 @@ SELECT * FROM student_gender WHERE student_gender = 1;
 
 > 结论：当数据重复度大，比如 高于 10% 的时候，也不需要对这个字段使用索引。
 
-#### 4.  避免对经常更新的表创建过多的索引
+#### ❌4.  避免对经常更新的表创建过多的索引
 
 第一层含义：频繁更新的字段不一定要创建索引。因为更新数据的时候，也需要更新索引，如果索引太多，在更新索引的时候也会造成负担，从而影响效率。
 
 第二层含义：避免对经常更新的表创建过多的索引，并且索引中的列尽可能少。此时，虽然提高了查询速度，同时却降低更新表的速度。
 
-#### 5. 不建议用无序的值作为索引
+#### ❌5. 不建议用无序的值作为索引
 
 例如身份证、UUID(在索引比较时需要转为ASCII，并且插入时可能造成页分裂)、MD5、HASH、无序长字 符串等。
 
-#### 6. 删除不再使用或者很少使用的索引
+#### ❌6. 删除不再使用或者很少使用的索引
 
 表中的数据被大量更新，或者数据的使用方式被改变后，原有的一些索引可能不再需要。数据库管理员应当定期找出这些索引，将它们删除，从而减少索引对更新操作的影响。
 
-#### 7. 不要定义夯余或重复的索引
+#### ❌7. 不要定义夯余或重复的索引
 
 ① 冗余索引 
 
@@ -1827,11 +1827,11 @@ INDEX idx_c1 (col1)
 
 我们看到，col1 既是主键、又给它定义为一个唯一索引，还给它定义了一个普通索引，可是主键本身就 会生成聚簇索引，所以定义的唯一索引和普通索引是重复的，这种情况要避免。
 
-# 第09章_性能分析工具的使用
+# ❌第09章_性能分析工具的使用
 
 在数据库调优中，我们的目标是 `响应时间更快, 吞吐量更大` 。利用宏观的监控工具和微观的日志分析可以帮我们快速找到调优的思路和方式。
 
-## 1. 数据库服务器的优化步骤
+## ❌1. 数据库服务器的优化步骤
 
 当我们遇到数据库调优问题的时候，该如何思考呢？这里把思考的流程整理成下面这张图。
 
@@ -1849,7 +1849,7 @@ INDEX idx_c1 (col1)
 
 <img src="MySQL索引及调优篇.assets/image-20220627164114562.png" alt="image-20220627164114562" style="float:left;" />
 
-## 2. 查看系统性能参数
+## ❌2. 查看系统性能参数
 
 在MySQL中，可以使用 `SHOW STATUS` 语句查询一些MySQL数据库服务器的`性能参数、执行频率`。
 
@@ -1899,7 +1899,7 @@ SHOW STATUS LIKE 'Slow_queries';
 SHOW STATUS LIKE 'Innodb_rows_%';
 ```
 
-## 3. 统计SQL的查询成本: last_query_cost
+## ❌3. 统计SQL的查询成本: last_query_cost
 
 一条SQL查询语句在执行前需要查询执行计划，如果存在多种执行计划的话，MySQL会计算每个执行计划所需要的成本，从中选择`成本最小`的一个作为最终执行的执行计划。
 
@@ -1968,11 +1968,11 @@ mysql> SHOW STATUS LIKE 'last_query_cost';
 >
 > 所以说，遇到I/O并不用担心，方法找对了，效率还是很高的。我们首先要考虑数据存放的位置，如果是进程使用的数据就要尽量放到`缓冲池`中，其次我们可以充分利用磁盘的吞吐能力，一次性批量读取数据，这样单个页的读取效率也就得到了提升。
 
-## 4. 定位执行慢的 SQL：慢查询日志
+## ❌4. 定位执行慢的 SQL：慢查询日志
 
 <img src="MySQL索引及调优篇.assets/image-20220628173022699.png" alt="image-20220628173022699" style="float:left;" />
 
-### 4.1 开启慢查询日志参数
+### ❌4.1 开启慢查询日志参数
 
 **1. 开启 slow_query_log**
 
@@ -2028,15 +2028,15 @@ mysql> show variables like '%long_query_time%';
 
 ```properties
 [mysqld]
-slow_query_log=ON  # 开启慢查询日志开关
-slow_query_log_file=/var/lib/mysql/atguigu-low.log  # 慢查询日志的目录和文件名信息
-long_query_time=3  # 设置慢查询的阈值为3秒，超出此设定值的SQL即被记录到慢查询日志
+slow_query_log=ON  # ❌开启慢查询日志开关
+slow_query_log_file=/var/lib/mysql/atguigu-low.log  # ❌慢查询日志的目录和文件名信息
+long_query_time=3  # ❌设置慢查询的阈值为3秒，超出此设定值的SQL即被记录到慢查询日志
 log_output=FILE
 ```
 
 如果不指定存储路径，慢查询日志默认存储到MySQL数据库的数据文件夹下。如果不指定文件名，默认文件名为hostname_slow.log。
 
-### 4.2 查看慢查询数目
+### ❌4.2 查看慢查询数目
 
 查询当前系统中有多少条慢查询记录
 
@@ -2044,7 +2044,7 @@ log_output=FILE
 SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 ```
 
-### 4.3 案例演示
+### ❌4.3 案例演示
 
 **步骤1. 建表**
 
@@ -2070,7 +2070,7 @@ This function has none of DETERMINISTIC......
 * 命令开启：允许创建函数设置：
 
 ```mysql
-set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+set global log_bin_trust_function_creators=1; # ❌不加global只是当前窗口有效。
 ```
 
 **步骤3：创建函数**
@@ -2094,7 +2094,7 @@ BEGIN
 END //
 DELIMITER ;
 
-# 测试
+# ❌测试
 SELECT rand_string(10);
 ```
 
@@ -2141,7 +2141,7 @@ DELIMITER ;
 CALL insert_stu1(100001,4000000);
 ```
 
-### 4.4 测试及分析
+### ❌4.4 测试及分析
 
 **1. 测试**
 
@@ -2178,7 +2178,7 @@ show status like 'slow_queries';
 
 <img src="MySQL索引及调优篇.assets/image-20220628195650079.png" alt="image-20220628195650079" style="float:left;" />
 
-### 4.5 慢查询日志分析工具：mysqldumpslow
+### ❌4.5 慢查询日志分析工具：mysqldumpslow
 
 在生产环境中，如果要手工分析日志，查找、分析SQL，显然是个体力活，MySQL提供了日志分析工具 `mysqldumpslow` 。
 
@@ -2212,7 +2212,7 @@ mysqldumpslow -s t -t 5 /var/lib/mysql/atguigu01-slow.log
 ```
 
 ```properties
-[root@bogon ~]# mysqldumpslow -s t -t 5 /var/lib/mysql/atguigu01-slow.log
+[root@bogon ~]# ❌mysqldumpslow -s t -t 5 /var/lib/mysql/atguigu01-slow.log
 
 Reading mysql slow query log from /var/lib/mysql/atguigu01-slow.log
 Count: 1 Time=2.39s (2s) Lock=0.00s (0s) Rows=13.0 (13), root[root]@localhost
@@ -2240,7 +2240,7 @@ mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/atguigu-slow.log
 mysqldumpslow -s r -t 10 /var/lib/mysql/atguigu-slow.log | more
 ```
 
-### 4.6 关闭慢查询日志
+### ❌4.6 关闭慢查询日志
 
 MySQL服务器停止慢查询日志功能有两种方法：
 
@@ -2283,7 +2283,7 @@ SHOW VARIABLES LIKE '%slow%';
 SHOW VARIABLES LIKE '%long_query_time%';
 ```
 
-### 4.7 删除慢查询日志
+### ❌4.7 删除慢查询日志
 
 使用SHOW语句显示慢查询日志信息，具体SQL语句如下。
 
@@ -2305,7 +2305,7 @@ mysqladmin -uroot -p flush-logs slow
 >
 > 慢查询日志都是使用mysqladmin flush-logs命令来删除重建的。使用时一定要注意，一旦执行了这个命令，慢查询日志都只存在新的日志文件中，如果需要旧的查询日志，就必须事先备份。
 
-## 5. 查看 SQL 执行成本：SHOW PROFILE
+## ❌5. 查看 SQL 执行成本：SHOW PROFILE
 
 show profile 在《逻辑架构》章节中讲过，这里作为复习。
 
@@ -2385,9 +2385,9 @@ mysql> show profile cpu,block io for query 2
 
 不过SHOW PROFILE命令将被启用，我们可以从 information_schema 中的 profiling 数据表进行查看。
 
-## 6. 分析查询语句：EXPLAIN
+## ❌6. 分析查询语句：EXPLAIN
 
-### 6.1 概述
+### ❌6.1 概述
 
 <img src="MySQL索引及调优篇.assets/image-20220628210837301.png" alt="image-20220628210837301" style="float:left;" />
 
@@ -2415,7 +2415,7 @@ https://dev.mysql.com/doc/refman/8.0/en/explain-output.html
 
 <img src="MySQL索引及调优篇.assets/image-20220628211351678.png" alt="image-20220628211351678" style="float:left;" />
 
-### 6.2 基本语法
+### ❌6.2 基本语法
 
 EXPLAIN 或 DESCRIBE语句的语法形式如下：
 
@@ -2439,7 +2439,7 @@ EXPLAIN 语句输出的各个列的作用如下：
 
 在这里把它们都列出来知识为了描述一个轮廓，让大家有一个大致的印象。
 
-### 6.3 数据准备
+### ❌6.3 数据准备
 
 **1. 建表**
 
@@ -2484,7 +2484,7 @@ CREATE TABLE s2 (
 创建函数，假如报错，需开启如下命令：允许创建函数设置：
 
 ```mysql
-set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+set global log_bin_trust_function_creators=1; # ❌不加global只是当前窗口有效。
 ```
 
 **3. 创建函数**
@@ -2575,11 +2575,11 @@ s2表数据的添加：加入1万条记录：
 CALL insert_s2(10001,10000);
 ```
 
-### 6.4 EXPLAIN各列作用
+### ❌6.4 EXPLAIN各列作用
 
 为了让大家有比较好的体验，我们调整了下 `EXPLAIN` 输出列的顺序。
 
-#### 1. table
+#### ❌1. table
 
 不论我们的查询语句有多复杂，里边儿 包含了多少个表 ，到最后也是需要对每个表进行 单表访问 的，所 以MySQL规定EXPLAIN语句输出的每条记录都对应着某个单表的访问方法，该条记录的table列代表着该 表的表名（有时不是真实的表名字，可能是简称）。
 
@@ -2601,7 +2601,7 @@ mysql > EXPLAIN SELECT * FROM s1 INNER JOIN s2;
 
 可以看出这个连接查询的执行计划中有两条记录，这两条记录的table列分别是s1和s2，这两条记录用来分别说明对s1表和s2表的访问方法是什么。
 
-#### 2. id
+#### ❌2. id
 
 我们写的查询语句一般都以 SELECT 关键字开头，比较简单的查询语句里只有一个 SELECT 关键字，比 如下边这个查询语句：
 
@@ -2648,7 +2648,7 @@ mysql> EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key1 FROM s2) OR key3 = 'a
 <img src="MySQL索引及调优篇.assets/image-20220629170848349.png" alt="image-20220629170848349" style="float:left;" />
 
 ```mysql
-# 查询优化器可能对涉及子查询的查询语句进行重写，转变为多表查询的操作。  
+# ❌查询优化器可能对涉及子查询的查询语句进行重写，转变为多表查询的操作。  
 mysql> EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key2 FROM s2 WHERE common_field = 'a');
 ```
 
@@ -2659,7 +2659,7 @@ mysql> EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key2 FROM s2 WHERE common_
 对于包含`UNION`子句的查询语句来说，每个`SELECT`关键字对应一个`id`值也是没错的，不过还是有点儿特别的东西，比方说下边的查询：
 
 ```mysql
-# Union去重
+# ❌Union去重
 mysql> EXPLAIN SELECT * FROM s1 UNION SELECT * FROM s2;
 ```
 
@@ -2679,7 +2679,7 @@ mysql> EXPLAIN SELECT * FROM s1 UNION ALL SELECT * FROM s2;
 * 在所有组中，id值越大，优先级越高，越先执行 
 * 关注点：id号每个号码，表示一趟独立的查询, 一个sql的查询趟数越少越好
 
-#### 3. select_type
+#### ❌3. select_type
 
 <img src="MySQL索引及调优篇.assets/image-20220629171611716.png" alt="image-20220629171611716" style="float:left;" />
 
@@ -2779,7 +2779,7 @@ mysql> EXPLAIN SELECT * FROM s1 INNER JOIN s2;
 
   不常用，就不多说了。
 
-####  4. partitions (可略)
+#### ❌ 4. partitions (可略)
 
 * 代表分区表中的命中情况，非分区表，该项为`NULL`。一般情况下我们的额查询语句的执行计划的`partitions`列的值为`NULL`。
 * <a>https://dev.mysql.com/doc/refman/5.7/en/alter-table-partition-operations.html</a>
@@ -2806,7 +2806,7 @@ DESC SELECT * FROM user_partitions WHERE id>200;
 
 <img src="MySQL索引及调优篇.assets/image-20220629190335371.png" alt="image-20220629190335371" style="float:left;" />
 
-#### 5. type ☆
+#### ❌5. type ☆
 
 执行计划的一条记录就代表着MySQL对某个表的 `执行查询时的访问方法` , 又称“访问类型”，其中的 `type` 列就表明了这个访问方法是啥，是较为重要的一个指标。比如，看到`type`列的值是`ref`，表明`MySQL`即将使用`ref`访问方法来执行对`s1`表的查询。
 
@@ -2964,7 +2964,7 @@ DESC SELECT * FROM user_partitions WHERE id>200;
 
 **其中比较重要的几个提取出来（见上图中的粗体）。SQL 性能优化的目标：至少要达到 range 级别，要求是 ref 级别，最好是 consts级别。（阿里巴巴 开发手册要求）**
 
-####  6. possible_keys和key
+#### ❌ 6. possible_keys和key
 
 在EXPLAIN语句输出的执行计划中，`possible_keys`列表示在某个查询语句中，对某个列执行`单表查询时可能用到的索引`有哪些。一般查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用。`key`列表示`实际用到的索引`有哪些，如果为NULL，则没有使用索引。比方说下面这个查询：
 
@@ -2976,7 +2976,7 @@ mysql> EXPLAIN SELECT * FROM s1 WHERE key1 > 'z' AND key3 = 'a';
 
 上述执行计划的`possible_keys`列的值是`idx_key1, idx_key3`，表示该查询可能使用到`idx_key1, idx_key3`两个索引，然后`key`列的值是`idx_key3`，表示经过查询优化器计算使用不同索引的成本后，最后决定采用`idx_key3`。
 
-#### 7. key_len ☆
+#### ❌7. key_len ☆
 
 实际使用到的索引长度 (即：字节数)
 
@@ -3034,7 +3034,7 @@ char(10)固定字段且允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1
 char(10)固定字段且不允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1)
 ```
 
-#### 8. ref
+#### ❌8. ref
 
 <img src="MySQL索引及调优篇.assets/image-20220704131759630.png" alt="image-20220704131759630" style="float:left;" />
 
@@ -3058,7 +3058,7 @@ mysql> EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s2.key1 = UPPER(s1.key1);
 
 ![image-20220704130957359](MySQL索引及调优篇.assets/image-20220704130957359.png)
 
-#### 9. rows ☆
+#### ❌9. rows ☆
 
 预估的需要读取的记录条数，`值越小越好`。
 
@@ -3068,7 +3068,7 @@ mysql> EXPLAIN SELECT * FROM s1 WHERE key1 > 'z';
 
 ![image-20220704131050496](MySQL索引及调优篇.assets/image-20220704131050496.png)
 
-#### 10. filtered
+#### ❌10. filtered
 
 某个表经过搜索条件过滤后剩余记录条数的百分比
 
@@ -3090,7 +3090,7 @@ mysql> EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key1 WHERE s1.comm
 
 从执行计划中可以看出来，查询优化器打算把`s1`作为驱动表，`s2`当做被驱动表。我们可以看到驱动表`s1`表的执行计划的`rows`列为`9688`，filtered列为`10.00`，这意味着驱动表`s1`的扇出值就是`9688 x 10.00% = 968.8`，这说明还要对被驱动表执行大约`968`次查询。
 
-#### 11. Extra ☆
+#### ❌11. Extra ☆
 
 顾名思义，`Extra`列是用来说明一些额外信息的，包含不适合在其他列中显示但十分重要的额外信息。我们可以通过这些额外信息来`更准确的理解MySQL到底将如何执行给定的查询语句`。MySQL提供的额外信息有好几十个，我们就不一个一个介绍了，所以我们只挑选比较重要的额外信息介绍给大家。
 
@@ -3266,20 +3266,20 @@ mysql> EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key1 WHERE s1.comm
 
   其它特殊情况这里省略。
 
-#### 12. 小结
+#### ❌12. 小结
 
 * EXPLAIN不考虑各种Cache 
 * EXPLAIN不能显示MySQL在执行查询时所作的优化工作 
 * EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况 
 * 部分统计信息是估算的，并非精确值
 
-## 7. EXPLAIN的进一步使用
+## ❌7. EXPLAIN的进一步使用
 
-### 7.1 EXPLAIN四种输出格式
+### ❌7.1 EXPLAIN四种输出格式
 
 这里谈谈EXPLAIN的输出格式。EXPLAIN可以输出四种格式： `传统格式` ，`JSON格式` ， `TREE格式` 以及 `可视化输出` 。用户可以根据需要选择适用于自己的格式。
 
-#### 1. 传统格式
+#### ❌1. 传统格式
 
 传统格式简单明了，输出是一个表格形式，概要说明查询计划。
 
@@ -3289,7 +3289,7 @@ mysql> EXPLAIN SELECT s1.key1, s2.key1 FROM s1 LEFT JOIN s2 ON s1.key1 = s2.key1
 
 ![image-20220704161702384](MySQL索引及调优篇.assets/image-20220704161702384.png)
 
-#### 2. JSON格式
+#### ❌2. JSON格式
 
 第1种格式中介绍的`EXPLAIN`语句输出中缺少了一个衡量执行好坏的重要属性 —— `成本`。而JSON格式是四种格式里面输出`信息最详尽`的格式，里面包含了执行的成本信息。
 
@@ -3319,7 +3319,7 @@ mysql> EXPLAIN FORMAT=JSON SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key2 W
 
 ![image-20220704173108888](MySQL索引及调优篇.assets/image-20220704173108888.png)
 
-我们使用 # 后边跟随注释的形式为大家解释了 `EXPLAIN FORMAT=JSON` 语句的输出内容，但是大家可能 有疑问 "`cost_info`" 里边的成本看着怪怪的，它们是怎么计算出来的？先看 s1 表的 "`cost_info`" 部 分：
+我们使用 # ❌后边跟随注释的形式为大家解释了 `EXPLAIN FORMAT=JSON` 语句的输出内容，但是大家可能 有疑问 "`cost_info`" 里边的成本看着怪怪的，它们是怎么计算出来的？先看 s1 表的 "`cost_info`" 部 分：
 
 ```
 "cost_info": {
@@ -3364,7 +3364,7 @@ mysql> EXPLAIN FORMAT=JSON SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key2 W
 968.80 + 193.76 + 2034.60 = 3197.16
 ```
 
-#### 3. TREE格式
+#### ❌3. TREE格式
 
 TREE格式是8.0.16版本之后引入的新格式，主要根据查询的 `各个部分之间的关系` 和 `各部分的执行顺序` 来描述如何查询。
 
@@ -3381,7 +3381,7 @@ condition: (cast(s1.key1 as double) = cast(s2.key2 as double)) (cost=0.25 rows=1
 1 row in set, 1 warning (0.00 sec)
 ```
 
-#### 4. 可视化输出
+#### ❌4. 可视化输出
 
 可视化输出，可以通过MySQL Workbench可视化查看MySQL的执行计划。通过点击Workbench的放大镜图标，即可生成可视化的查询计划。 
 
@@ -3389,7 +3389,7 @@ condition: (cast(s1.key1 as double) = cast(s2.key2 as double)) (cost=0.25 rows=1
 
 上图按从左到右的连接顺序显示表。红色框表示 `全表扫描` ，而绿色框表示使用 `索引查找` 。对于每个表， 显示使用的索引。还要注意的是，每个表格的框上方是每个表访问所发现的行数的估计值以及访问该表的成本。
 
-### 7.2 SHOW WARNINGS的使用
+### ❌7.2 SHOW WARNINGS的使用
 
 在我们使用`EXPLAIN`语句查看了某个查询的执行计划后，紧接着还可以使用`SHOW WARNINGS`语句查看与这个查询的执行计划有关的一些扩展信息，比如这样：
 
@@ -3414,7 +3414,7 @@ AS `key1` from `atguigu`.`s1` join `atguigu`.`s2` where ((`atguigu`.`s1`.`key1` 
 
 但是大家一定要注意，我们说`Message`字段展示的信息类似于查询优化器将我们的查询语句`重写后的语句`，并不是等价于，也就是说`Message`字段展示的信息并不是标准的查询语句，在很多情况下并不能直接拿到黑框框中运行，它只能作为帮助我们理解MySQL将如何执行查询语句的一个参考依据而已。
 
-## 8. 分析优化器执行计划：trace
+## ❌8. 分析优化器执行计划：trace
 
 <img src="MySQL索引及调优篇.assets/image-20220704175711800.png" alt="image-20220704175711800" style="float:left;" />
 
@@ -3659,11 +3659,11 @@ INSUFFICIENT_PRIVILEGES: 0 //缺失权限
 1 row in set (0.00 sec)
 ```
 
-## 9. MySQL监控分析视图-sys schema
+## ❌9. MySQL监控分析视图-sys schema
 
 <img src="MySQL索引及调优篇.assets/image-20220704190726180.png" alt="image-20220704190726180" style="float:left;" />
 
-### 9.1 Sys schema视图摘要
+### ❌9.1 Sys schema视图摘要
 
 1. **主机相关**：以host_summary开头，主要汇总了IO延迟的信息。 
 2. **Innodb相关**：以innodb开头，汇总了innodb buffer信息和事务等待innodb锁的信息。 
@@ -3676,7 +3676,7 @@ INSUFFICIENT_PRIVILEGES: 0 //缺失权限
 9. **用户相关**：以user开头的视图，统计了用户使用的文件I/O、执行语句统计信息。 
 10. **等待事件相关信息**：以wait开头，展示等待事件的延迟情况。
 
-### 9.2 Sys schema视图使用场景
+### ❌9.2 Sys schema视图使用场景
 
 索引情况
 
@@ -3693,13 +3693,13 @@ from sys.schema_index_statistics where table_schema='dbname';
 表相关
 
 ```mysql
-# 1. 查询表的访问量
+# ❌1. 查询表的访问量
 select table_schema,table_name,sum(io_read_requests+io_write_requests) as io from
 sys.schema_table_statistics group by table_schema,table_name order by io desc;
-# 2. 查询占用bufferpool较多的表
+# ❌2. 查询占用bufferpool较多的表
 select object_schema,object_name,allocated,data
 from sys.innodb_buffer_stats_by_table order by allocated limit 10;
-# 3. 查看表的全表扫描情况
+# ❌3. 查看表的全表扫描情况
 select * from sys.statements_with_full_table_scans where db='dbname';
 ```
 
@@ -3735,11 +3735,11 @@ select * from sys.innodb_lock_waits;
 
 <img src="MySQL索引及调优篇.assets/image-20220704192020603.png" alt="image-20220704192020603" style="float:left;" />
 
-## 10. 小结
+## ❌10. 小结
 
 查询是数据库中最频繁的操作，提高查询速度可以有效地提高MySQL数据库的性能。通过对查询语句的分析可以了解查询语句的执行情况，找出查询语句执行的瓶颈，从而优化查询语句。
 
-# 第10章_索引优化与查询优化
+# ❌第10章_索引优化与查询优化
 
 都有哪些维度可以进行数据库调优？简言之：
 
@@ -3755,7 +3755,7 @@ select * from sys.innodb_lock_waits;
 * 物理查询优化是通过`索引`和`表连接方式`等技术来进行优化，这里重点需要掌握索引的使用。
 * 逻辑查询优化就是通过SQL`等价变换`提升查询效率，直白一点就是说，换一种查询写法效率可能更高。
 
-## 1. 数据准备
+## ❌1. 数据准备
 
 `学员表` 插 `50万` 条，` 班级表` 插 `1万` 条。
 
@@ -3791,7 +3791,7 @@ CREATE TABLE `student` (
 * 命令开启：允许创建函数设置：
 
 ```mysql
-set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+set global log_bin_trust_function_creators=1; # ❌不加global只是当前窗口有效。
 ```
 
 **步骤3：创建函数**
@@ -3932,11 +3932,11 @@ DELIMITER ;
 CALL proc_drop_index("dbname","tablename");
 ```
 
-## 2. 索引失效案例
+## ❌2. 索引失效案例
 
 <img src="MySQL索引及调优篇.assets/image-20220704202453482.png" alt="image-20220704202453482" style="float:left;" />
 
-### 2.1 全值匹配我最爱
+### ❌2.1 全值匹配我最爱
 
 系统中经常出现的sql语句如下：
 
@@ -3970,7 +3970,7 @@ Empty set, 1 warning (0.01 sec)
 
 <img src="MySQL索引及调优篇.assets/image-20220704204140589.png" alt="image-20220704204140589" style="float:left;" />
 
-### 2.2 最佳左前缀法则
+### ❌2.2 最佳左前缀法则
 
 在MySQL建立联合索引时会遵守最佳左前缀原则，即最左优先，在检索数据时从联合索引的最左边开始匹配。
 
@@ -4016,7 +4016,7 @@ mysql> EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.classId=1 AND st
 >
 > 索引文件具有 B-Tree 的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引。
 
-### 2.3 主键插入顺序
+### ❌2.3 主键插入顺序
 
 <img src="MySQL索引及调优篇.assets/image-20220704212354041.png" alt="image-20220704212354041" style="float:left;" />
 
@@ -4040,7 +4040,7 @@ CREATE TABLE person_info(
 
 我们自定义的主键列 `id` 拥有 `AUTO_INCREMENT` 属性，在插入记录时存储引擎会自动为我们填入自增的主键值。这样的主键占用空间小，顺序写入，减少页分裂。
 
-### 2.4 计算、函数、类型转换(自动或手动)导致索引失效
+### ❌2.4 计算、函数、类型转换(自动或手动)导致索引失效
 
 1. 这两条sql哪种写法更好
 
@@ -4185,19 +4185,19 @@ CREATE TABLE person_info(
 
   ![image-20220704215600507](MySQL索引及调优篇.assets/image-20220704215600507.png)
 
-### 2.5 类型转换导致索引失效
+### ❌2.5 类型转换导致索引失效
 
 下列哪个sql语句可以用到索引。（假设name字段上设置有索引）
 
 ```mysql
-# 未使用到索引
+# ❌未使用到索引
 EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name=123;
 ```
 
 ![image-20220704215658526](MySQL索引及调优篇.assets/image-20220704215658526.png)
 
 ```mysql
-# 使用到索引
+# ❌使用到索引
 EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name='123';
 ```
 
@@ -4205,7 +4205,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name='123';
 
 name=123发生类型转换，索引失效。
 
-### 2.6 范围条件右边的列索引失效
+### ❌2.6 范围条件右边的列索引失效
 
 1. 系统经常出现的sql如下：
 
@@ -4241,7 +4241,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.age=30 AND student.name
 
 ![image-20220704223211981](MySQL索引及调优篇.assets/image-20220704223211981.png)
 
-### 2.7 不等于(!= 或者<>)索引失效
+### ❌2.7 不等于(!= 或者<>)索引失效
 
 * 为name字段创建索引
 
@@ -4267,7 +4267,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.name != 'abc';
 
 场景举例：用户提出需求，将财务数据，产品利润金额不等于0的都统计出来。
 
-###  2.8 is null可以使用索引，is not null无法使用索引
+### ❌ 2.8 is null可以使用索引，is not null无法使用索引
 
 * IS NULL: 可以触发索引
 
@@ -4287,7 +4287,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age IS NOT NULL;
 >
 > 扩展：同理，在查询中使用`not like`也无法使用索引，导致全表扫描。
 
-### 2.9 like以通配符%开头索引失效
+### ❌2.9 like以通配符%开头索引失效
 
 在使用LIKE关键字进行查询的查询语句中，如果匹配字符串的第一个字符为'%'，索引就不会起作用。只有'%'不在第一个位置，索引才会起作用。
 
@@ -4311,7 +4311,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name LIKE '%ab%';
 >
 > 【强制】页面搜索严禁左模糊或者全模糊，如果需要请走搜索引擎来解决。
 
-### 2.10 OR 前后存在非索引的列，索引失效
+### ❌2.10 OR 前后存在非索引的列，索引失效
 
 在WHERE子句中，如果在OR前的条件列进行了索引，而在OR后的条件列没有进行索引，那么索引会失效。也就是说，**OR前后的两个条件中的列都是索引时，查询中才使用索引。**
 
@@ -4320,7 +4320,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name LIKE '%ab%';
 查询语句使用OR关键字的情况：
 
 ```mysql
-# 未使用到索引
+# ❌未使用到索引
 EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 10 OR classid = 100;
 ```
 
@@ -4337,11 +4337,11 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 10 OR name = 'Abel';
 
 因为age字段和name字段上都有索引，所以查询中使用了索引。你能看到这里使用到了`index_merge`，简单来说index_merge就是对age和name分别进行了扫描，然后将这两个结果集进行了合并。这样做的好处就是`避免了全表扫描`。
 
-### 2.11 数据库和表的字符集统一使用utf8mb4
+### ❌2.11 数据库和表的字符集统一使用utf8mb4
 
 统一使用utf8mb4( 5.5.3版本以上支持)兼容性更好，统一字符集可以避免由于字符集转换产生的乱码。不 同的 `字符集` 进行比较前需要进行 `转换` 会造成索引失效。
 
-### 2.12 练习及一般性建议
+### ❌2.12 练习及一般性建议
 
 **练习：**假设：index(a,b,c)
 
@@ -4356,12 +4356,12 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 10 OR name = 'Abel';
 
 **总之，书写SQL语句时，尽量避免造成索引失效的情况**
 
-## 3. 关联查询优化
+## ❌3. 关联查询优化
 
-### 3.1 数据准备
+### ❌3.1 数据准备
 
 ```mysql
-# 分类
+# ❌分类
 CREATE TABLE IF NOT EXISTS `type` (
 `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 `card` INT(10) UNSIGNED NOT NULL,
@@ -4419,7 +4419,7 @@ INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
 INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
 ```
 
-### 3.2 采用左外连接
+### ❌3.2 采用左外连接
 
 下面开始 EXPLAIN 分析
 
@@ -4458,7 +4458,7 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM `type` LEFT JOIN book ON type.card = book.car
 
 ![image-20220705161515545](MySQL索引及调优篇.assets/image-20220705161515545.png)
 
-### 3.3 采用内连接
+### ❌3.3 采用内连接
 
 ```mysql
 drop index X on type;
@@ -4542,11 +4542,11 @@ EXPLAIN SELECT SQL_NO_CACHE * FROM `type` INNER JOIN book ON `type`.card = book.
 
 图中发现，由于type表数据大于book表数据，MySQL选择将type作为被驱动表。
 
-### 3.4 join语句原理
+### ❌3.4 join语句原理
 
 join方式连接多个表，本质就是各个表之间数据的循环匹配。MySQL5.5版本之前，MySQL只支持一种表间关联方式，就是嵌套循环(Nested Loop Join)。如果关联表的数据量很大，则join关联的执行时间会很长。在MySQL5.5以后的版本中，MySQL通过引入BNLJ算法来优化嵌套执行。
 
-#### 1. 驱动表和被驱动表
+#### ❌1. 驱动表和被驱动表
 
 驱动表就是主表，被驱动表就是从表、非驱动表。
 
@@ -4562,7 +4562,7 @@ A一定是驱动表吗？不一定，优化器会根据你查询语句做优化�
 
 ```mysql
 SELECT * FROM A LEFT JOIN B ON ...
-# 或
+# ❌或
 SELECT * FROM B RIGHT JOIN A ON ... 
 ```
 
@@ -4577,14 +4577,14 @@ INSERT INTO b VALUES(3,3),(4,4),(5,5),(6,6),(7,7),(8,8);
 
 SELECT * FROM b;
 
-# 测试1
+# ❌测试1
 EXPLAIN SELECT * FROM a LEFT JOIN b ON(a.f1=b.f1) WHERE (a.f2=b.f2);
 
-# 测试2
+# ❌测试2
 EXPLAIN SELECT * FROM a LEFT JOIN b ON(a.f1=b.f1) AND (a.f2=b.f2);
 ```
 
-#### 2. Simple Nested-Loop Join (简单嵌套循环连接)
+#### ❌2. Simple Nested-Loop Join (简单嵌套循环连接)
 
 算法相当简单，从表A中取出一条数据1，遍历表B，将匹配到的数据放到result.. 以此类推，驱动表A中的每一条记录与被驱动表B的记录进行判断：
 
@@ -4596,7 +4596,7 @@ EXPLAIN SELECT * FROM a LEFT JOIN b ON(a.f1=b.f1) AND (a.f2=b.f2);
 
 当然mysql肯定不会这么粗暴的去进行表的连接，所以就出现了后面的两种对Nested-Loop Join优化算法。
 
-#### 3. Index Nested-Loop Join （索引嵌套循环连接）
+#### ❌3. Index Nested-Loop Join （索引嵌套循环连接）
 
 Index Nested-Loop Join其优化的思路主要是为了`减少内存表数据的匹配次数`，所以要求被驱动表上必须`有索引`才行。通过外层表匹配条件直接与内层表索引进行匹配，避免和内存表的每条记录去进行比较，这样极大的减少了对内存表的匹配次数。
 
@@ -4608,7 +4608,7 @@ Index Nested-Loop Join其优化的思路主要是为了`减少内存表数据的
 
 如果被驱动表加索引，效率是非常高的，但如果索引不是主键索引，所以还得进行一次回表查询。相比，被驱动表的索引是主键索引，效率会更高。
 
-#### 4. Block Nested-Loop Join（块嵌套循环连接）
+#### ❌4. Block Nested-Loop Join（块嵌套循环连接）
 
 <img src="MySQL索引及调优篇.assets/image-20220705173047234.png" alt="image-20220705173047234" style="float:left;" />
 
@@ -4638,15 +4638,15 @@ mysql> show variables like '%join_buffer%';
 
 join_buffer_size的最大值在32位操作系统可以申请4G，而在64位操作系统下可以申请大于4G的Join Buffer空间（64位Windows除外，其大值会被截断为4GB并发出警告）。
 
-#### 5. Join小结
+#### ❌5. Join小结
 
 1、**整体效率比较：INLJ > BNLJ > SNLJ**
 
 2、永远用小结果集驱动大结果集（其本质就是减少外层循环的数据数量）（小的度量单位指的是表行数 * 每行大小）
 
 ```mysql
-select t1.b,t2.* from t1 straight_join t2 on (t1.b=t2.b) where t2.id<=100; # 推荐
-select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id<=100; # 不推荐
+select t1.b,t2.* from t1 straight_join t2 on (t1.b=t2.b) where t2.id<=100; # ❌推荐
+select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id<=100; # ❌不推荐
 ```
 
 3、为被驱动表匹配的条件增加索引(减少内存表的循环匹配次数)
@@ -4655,7 +4655,7 @@ select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id<=100; # 不
 
 5、减少驱动表不必要的字段查询（字段越少，join buffer所缓存的数据就越多）
 
-#### 6. Hash Join
+#### ❌6. Hash Join
 
 **从MySQL的8.0.20版本开始将废弃BNLJ，因为从MySQL8.0.18版本开始就加入了hash join默认都会使用hash join**
 
@@ -4670,7 +4670,7 @@ select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id<=100; # 不
 
 ![image-20220705205050280](MySQL索引及调优篇.assets/image-20220705205050280.png)
 
-### 3.5 小结
+### ❌3.5 小结
 
 * 保证被驱动表的JOIN字段已经创建了索引 
 * 需要JOIN 的字段，数据类型保持绝对一致。 
@@ -4680,7 +4680,7 @@ select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id<=100; # 不
 * 不建议使用子查询，建议将子查询SQL拆开结合程序多次查询，或使用 JOIN 来代替子查询。 
 * 衍生表建不了索引
 
-## 4. 子查询优化
+## ❌4. 子查询优化
 
 MySQL从4.1版本开始支持子查询，使用子查询可以进行SELECT语句的嵌套查询，即一个SELECT查询的结 果作为另一个SELECT语句的条件。 `子查询可以一次性完成很多逻辑上需要多个步骤才能完成的SQL操作` 。
 
@@ -4699,7 +4699,7 @@ MySQL从4.1版本开始支持子查询，使用子查询可以进行SELECT语句
 * 使用子查询
 
 ```mysql
-# 创建班级表中班长的索引
+# ❌创建班级表中班长的索引
 CREATE INDEX idx_monitor ON class(monitor);
 
 EXPLAIN SELECT * FROM student stu1
@@ -4748,9 +4748,9 @@ WHERE b.monitor IS NULL;
 
 > 结论：尽量不要使用NOT IN或者NOT EXISTS，用LEFT JOIN xxx ON xx WHERE xx IS NULL替代
 
-## 5. 排序优化
+## ❌5. 排序优化
 
-### 5.1 排序优化
+### ❌5.1 排序优化
 
 **问题**：在 WHERE 条件字段上加索引，但是为什么在 ORDER BY 字段上还要加索引呢？
 
@@ -4767,12 +4767,12 @@ WHERE b.monitor IS NULL;
 2. 尽量使用 Index 完成 ORDER BY 排序。如果 WHERE 和 ORDER BY 后面是相同的列就使用单索引列； 如果不同就使用联合索引。 
 3. 无法使用 Index 时，需要对 FileSort 方式进行调优。
 
-### 5.2 测试
+### ❌5.2 测试
 
 删除student表和class表中已创建的索引。
 
 ```mysql
-# 方式1
+# ❌方式1
 DROP INDEX idx_monitor ON class;
 DROP INDEX idx_cid ON student;
 DROP INDEX idx_age ON student;
@@ -4780,7 +4780,7 @@ DROP INDEX idx_name ON student;
 DROP INDEX idx_age_name_classId ON student;
 DROP INDEX idx_age_classId_name ON student;
 
-# 方式2
+# ❌方式2
 call proc_drop_index('atguigudb2','student';)
 ```
 
@@ -4830,7 +4830,7 @@ order by 能使用索引最左前缀
 - WHERE a in (...) ORDER BY b,c /*对于排序来说，多个相等条件也是范围查询*/
 ```
 
-### 5.3 案例实战
+### ❌5.3 案例实战
 
 ORDER BY子句，尽量使用Index方式排序，避免使用FileSort方式排序。 
 
@@ -4955,7 +4955,7 @@ CREATE INDEX idx_age_stuno ON student(age,stuno);
 
 当然可以。
 
-### 5.4 filesort算法：双路排序和单路排序
+### ❌5.4 filesort算法：双路排序和单路排序
 
 排序的字段若不在索引列上，则filesort会有两种算法：双路排序和单路排序
 
@@ -4991,7 +4991,7 @@ CREATE INDEX idx_age_stuno ON student(age,stuno);
 
 <img src="MySQL索引及调优篇.assets/image-20220705224551104.png" alt="image-20220705224551104" style="float:left;" />
 
-## 6. GROUP BY优化
+## ❌6. GROUP BY优化
 
 * group by 使用索引的原则几乎跟order by一致 ，group by 即使没有过滤条件用到索引，也可以直接使用索引。 
 * group by 先排序再分组，遵照索引建的最佳左前缀法则 
@@ -5000,7 +5000,7 @@ CREATE INDEX idx_age_stuno ON student(age,stuno);
 * 减少使用order by，和业务沟通能不排序就不排序，或将排序放到程序端去做。Order by、group by、distinct这些语句较为耗费CPU，数据库的CPU资源是极其宝贵的。 
 * 包含了order by、group by、distinct这些查询的语句，where条件过滤出来的结果集请保持在1000行 以内，否则SQL会很慢。
 
-## 7. 优化分页查询
+## ❌7. 优化分页查询
 
 <img src="MySQL索引及调优篇.assets/image-20220705225329130.png" alt="image-20220705225329130" style="float:left;" />
 
@@ -5024,9 +5024,9 @@ EXPLAIN SELECT * FROM student WHERE id > 2000000 LIMIT 10;
 
 ![image-20220705225654124](MySQL索引及调优篇.assets/image-20220705225654124.png)
 
-## 8. 优先考虑覆盖索引
+## ❌8. 优先考虑覆盖索引
 
-### 8.1 什么是覆盖索引？
+### ❌8.1 什么是覆盖索引？
 
 **理解方式一**：索引是高效找到行的一个方法，但是一般数据库也能使用索引找到一个列的数据，因此它不必读取整个行。毕竟索引叶子节点存储了它们索引的数据；当能通过读取索引就可以得到想要的数据，那就不需要读取行了。**一个索引包含了满足查询结果的数据就叫做覆盖索引**。
 
@@ -5037,7 +5037,7 @@ EXPLAIN SELECT * FROM student WHERE id > 2000000 LIMIT 10;
 **举例一：**
 
 ```mysql
-# 删除之前的索引
+# ❌删除之前的索引
 DROP INDEX idx_age_stuno ON student;
 CREATE INDEX idx_age_name ON student(age, NAME);
 EXPLAIN SELECT * FROM student WHERE age <> 20;
@@ -5068,11 +5068,11 @@ EXPLAIN SELECT id,age,NAME,classId FROM student WHERE NAME LIKE '%abc';
 
 ![image-20220706125351116](MySQL索引及调优篇.assets/image-20220706125351116.png)
 
-### 8.2 覆盖索引的利弊
+### ❌8.2 覆盖索引的利弊
 
 <img src="MySQL索引及调优篇.assets/image-20220706125943936.png" alt="image-20220706125943936" style="zoom:80%;float:left" />
 
-## 9. 如何给字符串添加索引
+## ❌9. 如何给字符串添加索引
 
 有一张教师表，表定义如下：
 
@@ -5092,7 +5092,7 @@ mysql> select col1, col2 from teacher where email='xxx';
 
 如果email这个字段上没有索引，那么这个语句就只能做 `全表扫描` 。
 
-### 9.1 前缀索引
+### ❌9.1 前缀索引
 
 MySQL是支持前缀索引的。默认地，如果你创建索引的语句不指定前缀长度，那么索引就会包含整个字 符串。
 
@@ -5127,33 +5127,33 @@ mysql> alter table teacher add index index2(email(6));
 
 也就是说**使用前缀索引，定义好长度，就可以做到既节省空间，又不用额外增加太多的查询成本。**前面 已经讲过区分度，区分度越高越好。因为区分度越高，意味着重复的键值越少。
 
-### 9.2 前缀索引对覆盖索引的影响
+### ❌9.2 前缀索引对覆盖索引的影响
 
 > 结论： 使用前缀索引就用不上覆盖索引对查询性能的优化了，这也是你在选择是否使用前缀索引时需要考虑的一个因素。
 
-## 10. 索引下推
+## ❌10. 索引下推
 
-### 10.1 使用前后对比
+### ❌10.1 使用前后对比
 
 Index Condition Pushdown(ICP)是MySQL 5.6中新特性，是一种在存储引擎层使用索引过滤数据的一种优化方式。
 
 <img src="MySQL索引及调优篇.assets/image-20220706131320477.png" alt="image-20220706131320477" style="zoom:80%;float:left" />
 
-### 10.2 ICP的开启/关闭
+### ❌10.2 ICP的开启/关闭
 
 * 默认情况下启动索引条件下推。可以通过设置系统变量`optimizer_switch`控制：`index_condition_pushdown`
 
 ```mysql
-# 打开索引下推
+# ❌打开索引下推
 SET optimizer_switch = 'index_condition_pushdown=on';
 
-# 关闭索引下推
+# ❌关闭索引下推
 SET optimizer_switch = 'index_condition_pushdown=off';
 ```
 
 * 当使用索引条件下推是，`EXPLAIN`语句输出结果中`Extra`列内容显示为`Using index condition`。
 
-### 10.3 ICP使用案例
+### ❌10.3 ICP使用案例
 
 <img src="MySQL索引及调优篇.assets/image-20220706135436316.png" alt="image-20220706135436316" style="zoom:80%;float:left" />
 
@@ -5169,13 +5169,13 @@ SET optimizer_switch = 'index_condition_pushdown=off';
 
 <img src="MySQL索引及调优篇.assets/image-20220706135723203.png" alt="image-20220706135723203" style="zoom:80%;float:left" />
 
-### 10.4 开启和关闭ICP性能对比
+### ❌10.4 开启和关闭ICP性能对比
 
 <img src="MySQL索引及调优篇.assets/image-20220706135904713.png" alt="image-20220706135904713" style="zoom:80%;float:left" />
 
 <img src="MySQL索引及调优篇.assets/image-20220706140213382.png" alt="image-20220706140213382" style="zoom:80%;float:left" />
 
-### 10.5 ICP的使用条件
+### ❌10.5 ICP的使用条件
 
 1. 如果表的访问类型为 range 、 ref 、 eq_ref 或者 ref_or_null 可以使用ICP。
 2. ICP可以使用`InnDB`和`MyISAM`表，包括分区表`InnoDB`和`MyISAM`表
@@ -5183,7 +5183,7 @@ SET optimizer_switch = 'index_condition_pushdown=off';
 4. 当SQL使用覆盖索引时，不支持ICP优化方法。因为这种情况下使用ICP不会减少I/O。
 5. 相关子查询的条件不能使用ICP
 
-## 11. 普通索引 vs 唯一索引
+## ❌11. 普通索引 vs 唯一索引
 
 从性能的角度考虑，你选择唯一索引还是普通索引呢？选择的依据是什么呢？
 
@@ -5202,7 +5202,7 @@ index (k)
 
 表中R1~R5的(ID,k)值分别为(100,1)、(200,2)、(300,3)、(500,5)和(600,6)。
 
-### 11.1 查询过程
+### ❌11.1 查询过程
 
 假设，执行查询的语句是 select id from test where k=5。
 
@@ -5211,7 +5211,7 @@ index (k)
 
 那么，这个不同带来的性能差距会有多少呢？答案是， 微乎其微 。
 
-### 11.2 更新过程
+### ❌11.2 更新过程
 
 为了说明普通索引和唯一索引对更新语句性能的影响这个问题，介绍一下change buffer。
 
@@ -5225,7 +5225,7 @@ index (k)
 
 如果要在这张表中插入一个新记录(4,400)的话，InnoDB的处理流程是怎样的？
 
-### 11.3 change buffer的使用场景
+### ❌11.3 change buffer的使用场景
 
 1. 普通索引和唯一索引应该怎么选择？其实，这两类索引在查询能力上是没差别的，主要考虑的是 对 更新性能 的影响。所以，建议你 尽量选择普通索引 。 
 2. 在实际使用中会发现， 普通索引 和 change buffer 的配合使用，对于 数据量大 的表的更新优化 还是很明显的。 
@@ -5234,9 +5234,9 @@ index (k)
    * 首先， 业务正确性优先 。我们的前提是“业务代码已经保证不会写入重复数据”的情况下，讨论性能 问题。如果业务不能保证，或者业务就是要求数据库来做约束，那么没得选，必须创建唯一索引。 这种情况下，本节的意义在于，如果碰上了大量插入数据慢、内存命中率低的时候，给你多提供一 个排查思路。 
    * 然后，在一些“ 归档库 ”的场景，你是可以考虑使用唯一索引的。比如，线上数据只需要保留半年， 然后历史数据保存在归档库。这时候，归档数据已经是确保没有唯一键冲突了。要提高归档效率， 可以考虑把表里面的唯一索引改成普通索引。
 
-## 12. 其它查询优化策略
+## ❌12. 其它查询优化策略
 
-### 12.1 EXISTS 和 IN 的区分
+### ❌12.1 EXISTS 和 IN 的区分
 
 **问题：**
 
@@ -5246,7 +5246,7 @@ index (k)
 
 <img src="MySQL索引及调优篇.assets/image-20220706141957185.png" alt="image-20220706141957185" style="zoom:80%;float:left" />
 
-### 12.2 COUNT(*)与COUNT(具体字段)效率
+### ❌12.2 COUNT(*)与COUNT(具体字段)效率
 
 问：在 MySQL 中统计数据表的行数，可以使用三种方式： SELECT COUNT(*) 、 SELECT COUNT(1) 和 SELECT COUNT(具体字段) ，使用这三者之间的查询效率是怎样的？
 
@@ -5254,7 +5254,7 @@ index (k)
 
 <img src="MySQL索引及调优篇.assets/image-20220706142648452.png" alt="image-20220706142648452" style="zoom:80%;float:left" />
 
-### 12.3 关于SELECT(*)
+### ❌12.3 关于SELECT(*)
 
 在表查询中，建议明确字段，不要使用 * 作为查询的字段列表，推荐使用SELECT <字段列表> 查询。原因： 
 
@@ -5262,13 +5262,13 @@ index (k)
 
 ② 无法使用 覆盖索引
 
-### 12.4 LIMIT 1 对优化的影响
+### ❌12.4 LIMIT 1 对优化的影响
 
 针对的是会扫描全表的 SQL 语句，如果你可以确定结果集只有一条，那么加上 LIMIT 1 的时候，当找到一条结果的时候就不会继续扫描了，这样会加快查询速度。
 
  如果数据表已经对字段建立了唯一索引，那么可以通过索引进行查询，不会全表扫描的话，就不需要加上 LIMIT 1 了。
 
-### 12.5 多使用COMMIT
+### ❌12.5 多使用COMMIT
 
 只要有可能，在程序中尽量多使用 COMMIT，这样程序的性能得到提高，需求也会因为 COMMIT 所释放 的资源而减少。
 
@@ -5279,7 +5279,7 @@ COMMIT 所释放的资源：
 * redo / undo log buffer 中的空间 
 * 管理上述 3 种资源中的内部花费
 
-## 13. 淘宝数据库，主键如何设计的？
+## ❌13. 淘宝数据库，主键如何设计的？
 
 聊一个实际问题：淘宝的数据库，主键是如何设计的？
 
@@ -5289,7 +5289,7 @@ COMMIT 所释放的资源：
 
 这样的回答，只站在了数据库这一层，而没有 `从业务的角度` 思考主键。主键就是一个自增ID吗？站在 2022年的新年档口，用自增做主键，架构设计上可能 `连及格都拿不到` 。
 
-### 13.1 自增ID的问题
+### ❌13.1 自增ID的问题
 
 自增ID做主键，简单易懂，几乎所有数据库都支持自增类型，只是实现上各自有所不同而已。自增ID除 了简单，其他都是缺点，总体来看存在以下几方面的问题：
 
@@ -5313,7 +5313,7 @@ COMMIT 所释放的资源：
 
    最重要的一点，自增ID是局部唯一，只在当前数据库实例中唯一，而不是全局唯一，在任意服务器间都 是唯一的。对于目前分布式系统来说，这简直就是噩梦。
 
-### 13.2 业务字段做主键
+### ❌13.2 业务字段做主键
 
 为了能够唯一地标识一个会员的信息，需要为 会员信息表 设置一个主键。那么，怎么为这个表设置主 键，才能达到我们理想的目标呢？ 这里我们考虑业务字段做主键。
 
@@ -5397,7 +5397,7 @@ mysql> SELECT b.membername,c.goodsname,a.quantity,a.salesvalue,a.transdate
 
 > 经验： 刚开始使用 MySQL 时，很多人都很容易犯的错误是喜欢用业务字段做主键，想当然地认为了解业 务需求，但实际情况往往出乎意料，而更改主键设置的成本非常高。
 
-### 13.3 淘宝的主键设计
+### ❌13.3 淘宝的主键设计
 
 在淘宝的电商业务中，订单服务是一个核心业务。请问， 订单表的主键 淘宝是如何设计的呢？是自增ID 吗？
 
@@ -5424,7 +5424,7 @@ mysql> SELECT b.membername,c.goodsname,a.quantity,a.salesvalue,a.transdate
 
 这样的设计能做到全局唯一，且对分布式系统查询及其友好。
 
-### 13.4 推荐的主键设计
+### ❌13.4 推荐的主键设计
 
 **非核心业务** ：对应表的主键自增ID，如告警、日志、监控等信息。
 
@@ -5511,21 +5511,21 @@ SELECT @uuid,uuid_to_bin(@uuid),uuid_to_bin(@uuid,TRUE);
 
 这样一来，各个门店添加会员的时候，都对同一个总部 MySQL 数据库中的数据表字段进行操作，就解 决了各门店添加会员时会员编号冲突的问题。
 
-# 第11章_数据库的设计规范
+# ❌第11章_数据库的设计规范
 
-## 1. 为什么需要数据库设计
+## ❌1. 为什么需要数据库设计
 
 <img src="MySQL索引及调优篇.assets/image-20220706164201695.png" alt="image-20220706164201695" style="zoom:80%;float:left" />
 
 <img src="MySQL索引及调优篇.assets/image-20220706164359539.png" alt="image-20220706164359539" style="zoom:80%;float:left" />
 
-## 2. 范 式
+## ❌2. 范 式
 
-### 2.1 范式简介
+### ❌2.1 范式简介
 
 在关系型数据库中，关于数据表设计的基本原则、规则就称为范式。可以理解为，一张数据表的设计结 构需要满足的某种设计标准的 级别 。要想设计一个结构合理的关系型数据库，必须满足一定的范式。
 
-### 2.2 范式都包括哪些
+### ❌2.2 范式都包括哪些
 
 目前关系型数据库有六种常见范式，按照范式级别，从低到高分别是：第一范式（1NF）、第二范式 （2NF）、第三范式（3NF）、巴斯-科德范式（BCNF）、第四范式(4NF）和第五范式（5NF，又称完美范式）。
 
@@ -5535,7 +5535,7 @@ SELECT @uuid,uuid_to_bin(@uuid),uuid_to_bin(@uuid,TRUE);
 
 ![image-20220706165020939](MySQL索引及调优篇.assets/image-20220706165020939.png)
 
-### 2.3 键和相关属性的概念
+### ❌2.3 键和相关属性的概念
 
 <img src="MySQL索引及调优篇.assets/image-20220706165231022.png" alt="image-20220706165231022" style="float:left;" />
 
@@ -5553,7 +5553,7 @@ SELECT @uuid,uuid_to_bin(@uuid),uuid_to_bin(@uuid,TRUE);
 * 外键 ：球员表中的球队编号。 
 * 主属性 、 非主属性 ：在球员表中，主属性是（球员编号）（身份证号），其他的属性（姓名） （年龄）（球队编号）都是非主属性。
 
-### 2.4 第一范式(1st NF)
+### ❌2.4 第一范式(1st NF)
 
 第一范式主要确保数据库中每个字段的值必须具有`原子性`，也就是说数据表中每个字段的值为`不可再次拆分`的最小数据单元。
 
@@ -5591,7 +5591,7 @@ user 表的设计不符合第一范式
 
 ![image-20220706171456873](MySQL索引及调优篇.assets/image-20220706171456873.png)
 
-### 2.5 第二范式(2nd NF)
+### ❌2.5 第二范式(2nd NF)
 
 第二范式要求，在满足第一范式的基础上，还要**满足数据库里的每一条数据记录，都是可唯一标识的。而且所有非主键字段，都必须完全依赖主键，不能只依赖主键的一部分**。如果知道主键的所有属性的值，就可以检索到任何元组（行）的任何属性的任何值。（要求中的主键，其实可以扩展替换为候选键）。
 
@@ -5646,7 +5646,7 @@ Orders表和OrderDetails表如下，此时符合第二范式。
 
 > 小结：第二范式（2NF）要求实体的属性完全依赖主关键字。如果存在不完全依赖，那么这个属性和主关键字的这一部分应该分离出来形成一个新的实体，新实体与元实体之间是一对多的关系。
 
-### 2.6 第三范式(3rd NF)
+### ❌2.6 第三范式(3rd NF)
 
 第三范式是在第二范式的基础上，确保数据表中的每一个非主键字段都和主键字段直接相关，也就是说，**要求数据表中的所有非主键字段不能依赖于其他非主键字段**。（即，不能存在非主属性A依赖于非主属性B，非主属性B依赖于主键C的情况，即存在“A->B->C"的决定关系）通俗地讲，该规则的意思是所有`非主键属性`之间不能由依赖关系，必须`相互独立`。
 
@@ -5700,13 +5700,13 @@ Orders表和OrderDetails表如下，此时符合第二范式。
 
 > 符合3NF后的数据模型通俗地讲，2NF和3NF通常以这句话概括：“每个非键属性依赖于键，依赖于 整个键，并且除了键别无他物”。
 
-### 2.7 小结
+### ❌2.7 小结
 
 <img src="MySQL索引及调优篇.assets/image-20220707124343085.png" alt="image-20220707124343085" style="zoom:80%;float:left" />
 
-## 3. 反范式化
+## ❌3. 反范式化
 
-### 3.1 概述
+### ❌3.1 概述
 
 <img src="MySQL索引及调优篇.assets/image-20220707124741675.png" alt="image-20220707124741675" style="zoom:80%;float:left" />
 
@@ -5717,7 +5717,7 @@ Orders表和OrderDetails表如下，此时符合第二范式。
 > 3. 通过在给定的表中添加额外的字段，以大量减少需要从中搜索信息所需的时间 
 > 4. 通过在给定的表中插入计算列，以方便查询
 
-### 3.2 应用举例
+### ❌3.2 应用举例
 
 **举例1：**
 
@@ -5805,18 +5805,18 @@ ORDER BY class_id DESC LIMIT 1000;
 
 优化之后只需要扫描一次聚集索引即可，运行时间为 0.039 秒，查询时间是之前的 1/10。 你能看到， 在数据量大的情况下，查询效率会有显著的提升。
 
-### 3.3 反范式的新问题
+### ❌3.3 反范式的新问题
 
 * 存储 空间变大了 
 * 一个表中字段做了修改，另一个表中冗余的字段也需要做同步修改，否则 数据不一致 
 * 若采用存储过程来支持数据的更新、删除等额外操作，如果更新频繁，会非常 消耗系统资源 
 * 在 数据量小 的情况下，反范式不能体现性能的优势，可能还会让数据库的设计更加复杂
 
-### 3.4 反范式的适用场景
+### ❌3.4 反范式的适用场景
 
 当冗余信息有价值或者能 `大幅度提高查询效率` 的时候，我们才会采取反范式的优化。
 
-#### 1. 增加冗余字段的建议
+#### ❌1. 增加冗余字段的建议
 
 增加冗余字段一定要符合如下两个条件。只要满足这两个条件，才可以考虑增加夯余字段。
 
@@ -5824,7 +5824,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 2）这个冗余字段`查询的时候不可或缺`。
 
-#### 2. 历史快照、历史数据的需要
+#### ❌2. 历史快照、历史数据的需要
 
 在现实生活中，我们经常需要一些冗余信息，比如订单中的收货人信息，包括姓名、电话和地址等。每 次发生的 `订单收货信息` 都属于 `历史快照` ，需要进行保存，但用户可以随时修改自己的信息，这时保存这 些冗余信息是非常有必要的。
 
@@ -5836,7 +5836,7 @@ ORDER BY class_id DESC LIMIT 1000;
 2. 数据库对数据的`增删改实时性`要求强，需要存储在线的用户数据，而数据仓库存储的一般是`历史数据`。
 3. 数据库设计需要`尽量避免冗余`，但为了提高查询效率也允许一定的`冗余度`，而数据仓库在设计上更偏向采用反范式设计，
 
-## 4. BCNF(巴斯范式)
+## ❌4. BCNF(巴斯范式)
 
 人们在3NF的基础上进行了改进，提出了巴斯范式（BCNF），页脚巴斯 - 科德范式（Boyce - Codd Normal Form）。BCNF被认为没有新的设计规范加入，只是对第三范式中设计规范要求更强，使得数据库冗余度更小。所以，称为是`修正的第三范式`，或`扩充的第三范式`，BCNF不被称为第四范式。
 
@@ -5912,7 +5912,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 ![image-20220707132355841](MySQL索引及调优篇.assets/image-20220707132355841.png)
 
-## 5. 第四范式
+## ❌5. 第四范式
 
 多值依赖的概念：
 
@@ -5951,7 +5951,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 ![image-20220707134220820](MySQL索引及调优篇.assets/image-20220707134220820.png)
 
-## 6. 第五范式、域键范式
+## ❌6. 第五范式、域键范式
 
 除了第四范式外，我们还有更高级的第五范式（又称完美范式）和域键范式（DKNF）。
 
@@ -5961,7 +5961,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 第五范式处理的是 `无损连接问题` ，这个范式基本 `没有实际意义` ，因为无损连接很少出现，而且难以察觉。而域键范式试图定义一个 `终极范式` ，该范式考虑所有的依赖和约束类型，但是实用价值也是最小的，只存在理论研究中。
 
-## 7. 实战案例
+## ❌7. 实战案例
 
 商超进货系统中的`进货单表`进行剖析：
 
@@ -5973,7 +5973,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 > 在实际工作场景中，这种由于数据表结构设计不合理，而导致的数据重复的现象并不少见。往往是系统虽然能够运行，承载能力却很差，稍微有点流量，就会出现内存不足、CPU使用率飙升的情况，甚至会导致整个项目失败。
 
-### 7.1 迭代1次：考虑1NF
+### ❌7.1 迭代1次：考虑1NF
 
 第一范式要求：**所有的字段都是基本数据类型，不可进行拆分**。这里需要确认，所有的列中，每个字段只包含一种数据。
 
@@ -5981,7 +5981,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 ![image-20220707154400580](MySQL索引及调优篇.assets/image-20220707154400580.png)
 
-### 7.2 迭代2次：考虑2NF
+### ❌7.2 迭代2次：考虑2NF
 
 第二范式要求，在满足第一范式的基础上，**还要满足数据表里的每一条数据记录，都是可唯一标识的。而且所有字段，都必须完全依赖主键，不能只依赖主键的一部分**。
 
@@ -6021,7 +6021,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 第3步，在“商品信息表”中，字段“barcode"是有`可能存在重复`的，比如，用户门店可能有散装称重商品和自产商品，会存在条码共用的情况。所以，所有的字段都不能唯一标识表里的记录。这个时候，我们必须给这个表加上一个主键，比如说是`自增字段"itemnumber"`。
 
-### 7.3 迭代3次：考虑3NF
+### ❌7.3 迭代3次：考虑3NF
 
 我们的进货单头表，还有数据冗余的可能。因为"suppliername"依赖"supplierid"，那么就可以按照第三范式的原则进行拆分了。我们就进一步拆分进货单头表，把它拆解陈供货商表和进货单头表。
 
@@ -6035,7 +6035,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 这2个表都满足第三范式的要求了。
 
-### 7.4 反范式化：业务优先的原则
+### ❌7.4 反范式化：业务优先的原则
 
 <img src="MySQL索引及调优篇.assets/image-20220707165459547.png" alt="image-20220707165459547" style="zoom:80%;float:left" />
 
@@ -6059,11 +6059,11 @@ ORDER BY class_id DESC LIMIT 1000;
 
 这样一来，我们就避免了冗余数据，而且还能够满足业务的需求，这样的数据库设计，才是合格的设计。
 
-## 8. ER模型
+## ❌8. ER模型
 
 <img src="MySQL索引及调优篇.assets/image-20220707170027637.png" alt="image-20220707170027637" style="zoom:80%;float:left" />
 
-### 8.1 ER模型包括哪些要素？
+### ❌8.1 ER模型包括哪些要素？
 
 **ER 模型中有三个要素，分别是实体、属性和关系。**
 
@@ -6075,7 +6075,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 注意：实体和属性不容易区分。这里提供一个原则：我们要从系统整体的角度出发去看，**可以独立存在的是实体，不可再分的是属性**。也就是说，属性不能包含其他属性。
 
-### 8.2 关系的类型
+### ❌8.2 关系的类型
 
 在 ER 模型的 3 个要素中，关系又可以分为 3 种类型，分别是 一对一、一对多、多对多。
 
@@ -6085,7 +6085,7 @@ ORDER BY class_id DESC LIMIT 1000;
 
 `多对多` ：指关系两边的实体都可以通过关系对应多个对方的实体。比如在进货模块中，供货商与超市之 间的关系就是多对多的关系，一个供货商可以给多个超市供货，一个超市也可以从多个供货商那里采购 商品。再比如一个选课表，有许多科目，每个科目有很多学生选，而每个学生又可以选择多个科目，这 就是多对多的关系。
 
-### 8.3 建模分析
+### ❌8.3 建模分析
 
 ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要。如果你只是开发一个小应用，或许简单设 计几个表够用了，一旦要设计有一定规模的应用，在项目的初始阶段，建立完整的 ER 模型就非常关键 了。开发应用项目的实质，其实就是 建模 。
 
@@ -6122,7 +6122,7 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 
 （8）订单中又包含多个订单详情，因为一个订单中可能包含不同种类的商品
 
-### 8.4 ER 模型的细化
+### ❌8.4 ER 模型的细化
 
 有了这个 ER 模型，我们就可以从整体上 理解 电商的业务了。刚刚的 ER 模型展示了电商业务的框架， 但是只包括了订单，地址，用户，购物车，评论，商品，商品分类和订单详情这八个实体，以及它们之 间的关系，还不能对应到具体的表，以及表与表之间的关联。我们需要把 属性加上 ，用 椭圆 来表示， 这样我们得到的 ER 模型就更加完整了。
 
@@ -6150,7 +6150,7 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 
 ![image-20220707171022246](MySQL索引及调优篇.assets/image-20220707171022246.png)
 
-### 8.5 ER 模型图转换成数据表
+### ❌8.5 ER 模型图转换成数据表
 
 通过绘制 ER 模型，我们已经理清了业务逻辑，现在，我们就要进行非常重要的一步了：把绘制好的 ER 模型，转换成具体的数据表，下面介绍下转换的原则：
 
@@ -6164,7 +6164,7 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 
 下面结合前面的ER模型，具体讲解一下怎么运用这些转换的原则，把 ER 模型转换成具体的数据表，从 而把抽象出来的数据模型，落实到具体的数据库设计当中。
 
-#### 1. 一个实体转换成一个数据库
+#### ❌1. 一个实体转换成一个数据库
 
 **先来看一下强实体转换成数据表:**
 
@@ -6190,21 +6190,21 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 
 <img src="MySQL索引及调优篇.assets/image-20220707172259143.png" alt="image-20220707172259143" style="float:left;" />
 
-#### 2. 一个多对多的关系转换成一个数据表
+#### ❌2. 一个多对多的关系转换成一个数据表
 
 <img src="MySQL索引及调优篇.assets/image-20220707172350226.png" alt="image-20220707172350226" style="float:left;" />
 
-#### 3. 通过外键来表达1对多的关系
+#### ❌3. 通过外键来表达1对多的关系
 
 <img src="MySQL索引及调优篇.assets/image-20220707172609833.png" alt="image-20220707172609833" style="float:left;" />
 
-#### 4. 把属性转换成表的字段
+#### ❌4. 把属性转换成表的字段
 
 <img src="MySQL索引及调优篇.assets/image-20220707172819174.png" alt="image-20220707172819174" style="float:left;" />
 
 ![image-20220707172918017](MySQL索引及调优篇.assets/image-20220707172918017.png)
 
-## 9. 数据表的设计原则
+## ❌9. 数据表的设计原则
 
 综合以上内容，总结出数据表设计的一般原则："三少一多"
 
@@ -6224,9 +6224,9 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 
 <img src="MySQL索引及调优篇.assets/image-20220707173557568.png" alt="image-20220707173557568" style="float:left;" />
 
-## 10. 数据库对象编写建议
+## ❌10. 数据库对象编写建议
 
-### 10.1 关于库
+### ❌10.1 关于库
 
 1. 【强制】库的名称必须控制在32个字符以内，只能使用英文字母、数字和下划线，建议以英文字 母开头。 
 2. 【强制】库名中英文 一律小写 ，不同单词采用 下划线 分割。须见名知意。 
@@ -6236,7 +6236,7 @@ ER 模型看起来比较麻烦，但是对我们把控项目整体非常重要�
 6. 【建议】对于程序连接数据库账号，遵循 权限最小原则 使用数据库账号只能在一个DB下使用，不准跨库。程序使用的账号 原则上不准有drop权限 。 
 7. 【建议】临时库以 tmp_ 为前缀，并以日期为后缀； 备份库以 bak_ 为前缀，并以日期为后缀。
 
-### 10.2 关于表、列
+### ❌10.2 关于表、列
 
 1. 【强制】表和列的名称必须控制在32个字符以内，表名只能使用英文字母、数字和下划线，建议 以 英文字母开头 。 
 
@@ -6304,7 +6304,7 @@ KEY `idx_create_time_status`(`create_time`,`user_review_status`)
 
 可视化工具除了方便，还能直接帮我们将数据库的结构定义转化成 SQL 语言，方便数据库和数据表结构的导出和导入。
 
-### 10.3 关于索引
+### ❌10.3 关于索引
 
 1. 【强制】InnoDB表必须主键为id int/bigint auto_increment，且主键值 禁止被更新 。 
 2. 【强制】InnoDB和MyISAM存储引擎表，索引类型必须为 BTREE 。 
@@ -6315,7 +6315,7 @@ KEY `idx_create_time_status`(`create_time`,`user_review_status`)
 7. 【建议】在多表 JOIN 的SQL里，保证被驱动表的连接列上有索引，这样JOIN 执行效率最高。 
 8. 【建议】建表或加索引时，保证表里互相不存在 冗余索引 。 比如：如果表里已经存在key(a,b)， 则key(a)为冗余索引，需要删除。
 
-### 10.4 SQL编写
+### ❌10.4 SQL编写
 
 1. 【强制】程序端SELECT语句必须指定具体字段名称，禁止写成 *。 
 2. 【建议】程序端insert语句指定具体字段名称，不要写成INSERT INTO t1 VALUES(…)。 
@@ -6330,11 +6330,11 @@ KEY `idx_create_time_status`(`create_time`,`user_review_status`)
 11. 【建议】事务里包含SQL不超过5个。 因为过长的事务会导致锁数据较久，MySQL内部缓存、连接消耗过多等问题。 
 12. 【建议】事务里更新语句尽量基于主键或UNIQUE KEY，如UPDATE… WHERE id=XX; 否则会产生间隙锁，内部扩大锁定范围，导致系统性能下降，产生死锁。
 
-## 11. PowerDesigner的使用
+## ❌11. PowerDesigner的使用
 
 PowerDesigner是一款开发人员常用的数据库建模工具，用户利用该软件可以方便地制作 `数据流程图` 、 `概念数据模型` 、 `物理数据模型` ，它几乎包括了数据库模型设计的全过程，是Sybase公司为企业建模和设 计提供的一套完整的集成化企业级建模解决方案。
 
-### 11.1 开始界面
+### ❌11.1 开始界面
 
 当前使用的PowerDesigner版本是16.5的。打开软件即是此页面，可选择Create Model,也可以选择Do Not Show page Again,自行在打开软件后创建也可以！完全看个人的喜好，在此我在后面的学习中不在显示此页面。
 
@@ -6344,7 +6344,7 @@ PowerDesigner是一款开发人员常用的数据库建模工具，用户利用�
 
  “Create Project”的作用类似于文件夹，负责把有关联关系的文件集中归类存放。
 
-### 11.2 概念数据模型
+### ❌11.2 概念数据模型
 
 常用的模型有4种，分别是 `概念模型(CDM Conceptual Data Model)` ， `物理模型（PDM,Physical Data Model）` ， `面向对象的模型（OOM Objcet Oriented Model）` 和 `业务模型（BPM Business Process Model）` ，我们先创建概念数据模型。
 
@@ -6419,7 +6419,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 ![image-20220707180254510](MySQL索引及调优篇.assets/image-20220707180254510.png)
 
-### 11.3 物理数据模型
+### ❌11.3 物理数据模型
 
 上面是概念数据模型，下面介绍一下物理数据模型，以后 经常使用 的就是物理数据模型。打开 PowerDesigner，然后点击File-->New Model然后选择如下图所示的物理数据模型，物理数据模型的名字自己起，然后选择自己所使用的数据库即可。
 
@@ -6495,7 +6495,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 <img src="MySQL索引及调优篇.assets/image-20220707194158936.png" alt="image-20220707194158936" style="float:left;" />
 
-### 11.4 概念模型转为物理模型
+### ❌11.4 概念模型转为物理模型
 
 1：如下图所示先打开概念模型图，然后点击Tool,如下图所示
 
@@ -6509,7 +6509,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 ![image-20220707194308595](MySQL索引及调优篇.assets/image-20220707194308595.png)
 
-### 11.5 物理模型转为概念模型
+### ❌11.5 物理模型转为概念模型
 
 上面介绍了概念模型转物理模型，下面介绍一下物理模型转概念模型（如下图点击操作即可）
 
@@ -6523,7 +6523,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 ![image-20220707194433407](MySQL索引及调优篇.assets/image-20220707194433407.png)
 
-###  11.6 物理模型导出SQL语句
+### ❌ 11.6 物理模型导出SQL语句
 
 ![image-20220707194544714](MySQL索引及调优篇.assets/image-20220707194544714.png)
 
@@ -6541,17 +6541,17 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 自此，就完成了导出sql语句，就可以到自己指定的位置查看导出的sql语句了；PowerDesigner在以后在 项目开发过程中用来做需求分析和数据库的设计非常的方便和快捷。
 
-# 第12章_数据库其它调优策略
+# ❌第12章_数据库其它调优策略
 
-## 1. 数据库调优的措施
+## ❌1. 数据库调优的措施
 
-### 1.1 调优的目标
+### ❌1.1 调优的目标
 
 * 尽可能节省系统资源 ，以便系统可以提供更大负荷的服务。（吞吐量更大） 
 * 合理的结构设计和参数调整，以提高用户操作响应的速度 。（响应速度更快） 
 * 减少系统的瓶颈，提高MySQL数据库整体的性能。
 
-### 1.2 如何定位调优问题
+### ❌1.2 如何定位调优问题
 
 <img src="MySQL索引及调优篇.assets/image-20220707200915836.png" alt="image-20220707200915836" style="float:left;" />
 
@@ -6559,29 +6559,29 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 <img src="MySQL索引及调优篇.assets/image-20220707201133424.png" alt="image-20220707201133424" style="float:left;" />
 
-### 1.3 调优的维度和步骤
+### ❌1.3 调优的维度和步骤
 
 我们需要调优的对象是整个数据库管理系统，它不仅包括 SQL 查询，还包括数据库的部署配置、架构 等。从这个角度来说，我们思考的维度就不仅仅局限在 SQL 优化上了。通过如下的步骤我们进行梳理：
 
-#### 第1步：选择适合的 DBMS
+#### ❌第1步：选择适合的 DBMS
 
 <img src="MySQL索引及调优篇.assets/image-20220707201443229.png" alt="image-20220707201443229" style="float:left;" />
 
-#### 第2步：优化表设计
+#### ❌第2步：优化表设计
 
 <img src="MySQL索引及调优篇.assets/image-20220707201617799.png" alt="image-20220707201617799" style="float:left;" />
 
-#### 第3步：优化逻辑查询
+#### ❌第3步：优化逻辑查询
 
 <img src="MySQL索引及调优篇.assets/image-20220707202059972.png" alt="image-20220707202059972" style="float:left;" />
 
-#### 第4步：优化物理查询
+#### ❌第4步：优化物理查询
 
 物理查询优化是在确定了逻辑查询优化之后，采用物理优化技术（比如索引等），通过计算代价模型对 各种可能的访问路径进行估算，从而找到执行方式中代价最小的作为执行计划。**在这个部分中，我们需要掌握的重点是对索引的创建和使用。**
 
 <img src="MySQL索引及调优篇.assets/image-20220707202156660.png" alt="image-20220707202156660" style="float:left;" />
 
-#### 第5步：使用 Redis 或 Memcached 作为缓存
+#### ❌第5步：使用 Redis 或 Memcached 作为缓存
 
 除了可以对 SQL 本身进行优化以外，我们还可以请外援提升查询的效率。
 
@@ -6593,7 +6593,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 <img src="MySQL索引及调优篇.assets/image-20220707202436467.png" alt="image-20220707202436467" style="float:left;" />
 
-#### 第6步：库级优化
+#### ❌第6步：库级优化
 
 <img src="MySQL索引及调优篇.assets/image-20220707202555506.png" alt="image-20220707202555506" style="float:left;" />
 
@@ -6605,11 +6605,11 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 > 但需要注意的是，分拆在提升数据库性能的同时，也会增加维护和使用成本。
 
-## 2. 优化MySQL服务器
+## ❌2. 优化MySQL服务器
 
 <img src="MySQL索引及调优篇.assets/image-20220707203818987.png" alt="image-20220707203818987" style="float:left;" />
 
-### 2.1 优化服务器硬件
+### ❌2.1 优化服务器硬件
 
 服务器的硬件性能直接决定着MySQL数据库的性能。硬件的性能瓶颈直接决定MySQL数据库的运行速度 和效率。针对性能瓶颈提高硬件配置，可以提高MySQL数据库查询、更新的速度。 
 
@@ -6621,7 +6621,7 @@ General中的name和code填好后，就可以点击Attributes（属性）来设�
 
 （4） `配置多处理器`, MySQL是多线程的数据库，多处理器可同时执行多个线程。
 
-### 2.2 优化MySQL的参数
+### ❌2.2 优化MySQL的参数
 
 <img src="MySQL索引及调优篇.assets/image-20220707204403406.png" alt="image-20220707204403406" style="float:left;" />
 
@@ -6737,11 +6737,11 @@ query_cache_size=32M
 
 <img src="MySQL索引及调优篇.assets/image-20220707210720394.png" alt="image-20220707210720394" style="float:left;" />
 
-## 3. 优化数据库结构
+## ❌3. 优化数据库结构
 
 <img src="MySQL索引及调优篇.assets/image-20220707211709553.png" alt="image-20220707211709553" style="float:left;" />
 
-### 3.1 拆分表：冷热数据分离
+### ❌3.1 拆分表：冷热数据分离
 
 <img src="MySQL索引及调优篇.assets/image-20220707211802756.png" alt="image-20220707211802756" style="float:left;" />
 
@@ -6775,7 +6775,7 @@ members_detail.member_id;
 
 通过这种分解可以提高表的查询效率。对于字段很多且有些字段使用不频繁的表，可以通过这种分解的方式来优化数据库的性能。
 
-### 3.2 增加中间表
+### ❌3.2 增加中间表
 
 <img src="MySQL索引及调优篇.assets/image-20220707212800544.png" alt="image-20220707212800544" style="float:left;" />
 
@@ -6823,7 +6823,7 @@ insert into temp_student(stu_name,className,monitor)
 
 以后，可以直接从temp_student表中查询学生名称、班级名称和班级班长，而不用每次都进行联合查 询。这样可以提高数据库的查询速度。
 
-### 3.3 增加冗余字段
+### ❌3.3 增加冗余字段
 
 设计数据库表时应尽量遵循范式理论的规约，尽可能减少冗余字段，让数据库设计看起来精致、优雅。 但是，合理地加入冗余字段可以提高查询速度。
 
@@ -6831,7 +6831,7 @@ insert into temp_student(stu_name,className,monitor)
 
 这部分内容在《第11章_数据库的设计规范》章节中 反范式化小节 中具体展开讲解了。这里省略。
 
-### 3.4 优化数据类型
+### ❌3.4 优化数据类型
 
 <img src="MySQL索引及调优篇.assets/image-20220707213524137.png" alt="image-20220707213524137" style="float:left;" />
 
@@ -6868,7 +6868,7 @@ Decimal类型为精准浮点数，在计算时不会丢失精度，尤其是财�
 
 **总之，遇到数据量大的项目时，一定要在充分了解业务需求的前提下，合理优化数据类型，这样才能充 分发挥资源的效率，使系统达到最优。**
 
-### 3.5 优化插入记录的速度
+### ❌3.5 优化插入记录的速度
 
 插入记录时，影响插入速度的主要是索引、唯一性校验、一次插入记录条数等。根据这些情况可以分别进行优化。这里我们分为MyISAM引擎和InnoDB引擎来讲。
 
@@ -6923,15 +6923,15 @@ insert into student values
 
 <img src="MySQL索引及调优篇.assets/image-20220707220131891.png" alt="image-20220707220131891" style="float:left;" />
 
-### 3.6 使用非空约束
+### ❌3.6 使用非空约束
 
 <img src="MySQL索引及调优篇.assets/image-20220707220157606.png" alt="image-20220707220157606" style="float:left;" />
 
-### 3.7 分析表、检查表与优化表
+### ❌3.7 分析表、检查表与优化表
 
 MySQL提供了分析表、检查表和优化表的语句。`分析表`主要是分析关键字的分布，`检查表`主要是检查表是否存在错误，`优化表`主要是消除删除或者更新造成的空间浪费。
 
-#### 1. 分析表
+#### ❌1. 分析表
 
 MySQL中提供了ANALYZE TABLE语句分析表，ANALYZE TABLE语句的基本语法如下：
 
@@ -6961,7 +6961,7 @@ mysql> ANALYZE TABLE user;
 * Msg_type: 表示信息类型，其值通常是状态 (status) 、信息 (info) 、注意 (note) 、警告 (warning) 和 错误 (error) 之一。
 * Msg_text: 显示信息。
 
-#### 2. 检查表
+#### ❌2. 检查表
 
 MySQL中可以使用 `CHECK TABLE` 语句来检查表。CHECK TABLE语句能够检查InnoDB和MyISAM类型的表 是否存在错误。CHECK TABLE语句在执行过程中也会给表加上 `只读锁` 。
 
@@ -6986,7 +6986,7 @@ option只对MyISAM类型的表有效，对InnoDB类型的表无效。比如：
 
 该语句对于检查的表可能会产生多行信息。最后一行有一个状态的 Msg_type 值，Msg_text 通常为 OK。 如果得到的不是 OK，通常要对其进行修复；是 OK 说明表已经是最新的了。表已经是最新的，意味着存 储引擎对这张表不必进行检查。
 
-#### 3. 优化表
+#### ❌3. 优化表
 
 **方式1：OPTIMIZE TABLE**
 
@@ -7024,7 +7024,7 @@ LOCAL | NO_WRITE_TO_BINLOG关键字的意义和分析表相同，都是指定不
 
 <img src="MySQL索引及调优篇.assets/image-20220707222305302.png" alt="image-20220707222305302" style="float:left;" />
 
-#### 3.8 小结
+#### ❌3.8 小结
 
 上述这些方法都是有利有弊的。比如：
 
@@ -7034,15 +7034,15 @@ LOCAL | NO_WRITE_TO_BINLOG关键字的意义和分析表相同，都是指定不
 
 因此，你一定要结合实际的业务需求进行权衡。
 
-## 4. 大表优化
+## ❌4. 大表优化
 
 当MySQL单表记录数过大时，数据库的CRUD性能会明显下降，一些常见的优化措施如下：
 
-### 4.1 限定查询的范围
+### ❌4.1 限定查询的范围
 
 禁止不带任何限制数据范围条件的查询语句。比如：我们当用户在查询订单历史的时候，我们可以控制 在一个月的范围内；
 
-###  4.2 读/写分离
+### ❌ 4.2 读/写分离
 
 经典的数据库拆分方案，主库负责写，从库负责读。
 
@@ -7054,7 +7054,7 @@ LOCAL | NO_WRITE_TO_BINLOG关键字的意义和分析表相同，都是指定不
 
 ![image-20220707222623485](MySQL索引及调优篇.assets/image-20220707222623485.png)
 
-### 4.3 垂直拆分
+### ❌4.3 垂直拆分
 
 当数据量级达到 `千万级` 以上时，有时候我们需要把一个数据库切成多份，放到不同的数据库服务器上， 减少对单一数据库服务器的访问压力。
 
@@ -7069,7 +7069,7 @@ LOCAL | NO_WRITE_TO_BINLOG关键字的意义和分析表相同，都是指定不
 
 `垂直拆分的缺点`： 主键会出现冗余，需要管理冗余列，并会引起 JOIN 操作。此外，垂直拆分会让事务变得更加复杂。
 
-### 4.4 水平拆分
+### ❌4.4 水平拆分
 
 <img src="MySQL索引及调优篇.assets/image-20220707222954304.png" alt="image-20220707222954304" style="float:left;" />
 
@@ -7082,9 +7082,9 @@ LOCAL | NO_WRITE_TO_BINLOG关键字的意义和分析表相同，都是指定不
 * **客户端代理： 分片逻辑在应用端，封装在jar包中，通过修改或者封装JDBC层来实现。** 当当网的 Sharding-JDBC 、阿里的TDDL是两种比较常用的实现。 
 * **中间件代理： 在应用和数据中间加了一个代理层。分片逻辑统一维护在中间件服务中。**我们现在 谈的 Mycat 、360的Atlas、网易的DDB等等都是这种架构的实现。
 
-## 5. 其它调优策略
+## ❌5. 其它调优策略
 
-### 5.1 服务器语句超时处理
+### ❌5.1 服务器语句超时处理
 
 在MySQL 8.0中可以设置 服务器语句超时的限制 ，单位可以达到 毫秒级别 。当中断的执行语句超过设置的 毫秒数后，服务器将终止查询影响不大的事务或连接，然后将错误报给客户端。
 
@@ -7098,12 +7098,12 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
 SET SESSION MAX_EXECUTION_TIME=2000; #指定该会话中SELECT语句的超时时间
 ```
 
-### 5.2 创建全局通用表空间
+### ❌5.2 创建全局通用表空间
 
 <img src="MySQL索引及调优篇.assets/image-20220707223246684.png" alt="image-20220707223246684" style="float:left;" />
 
 <img src="MySQL索引及调优篇.assets/image-20220707223349879.png" alt="image-20220707223349879" style="float:left;" />
 
-### 5.3 MySQL 8.0新特性：隐藏索引对调优的帮助
+### ❌5.3 MySQL 8.0新特性：隐藏索引对调优的帮助
 
 <img src="MySQL索引及调优篇.assets/image-20220707223420496.png" alt="image-20220707223420496" style="float:left;" />
